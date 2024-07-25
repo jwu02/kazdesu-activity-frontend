@@ -31,3 +31,78 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer base {
+  * {
+    @apply text-sm;
+  }
+
+  h1 {
+    @apply text-xl mb-2;
+  }
+}
+
+/* pulse effect */
+/* https://www.youtube.com/watch?v=PMGCOVfK-8s&t=1107s */
+
+.pulse-icon {
+  position: relative;
+}
+
+.pulse-icon::before,
+.pulse-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  border-radius: 50%;
+}
+
+.pulse-icon::after {
+  background-color: #0891b2;
+  animation: pulse 1500ms infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.beat-icon {
+  animation: beat 1500ms infinite alternate ease-in;
+  transform-origin: center;
+}
+
+@keyframes beat {
+  to { transform: scale(1.2); }
+}
+
+.clipped-corner {
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 75% 100%, 0 100%);
+}
+
+.clipped-corner:before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: calc(100% + 3px);
+  height: calc(100% + 3px);
+  background: rgb(0, 157, 255);
+  z-index: -1;
+}
+
+.custom-tooltip .tooltip-legend {
+  display: grid;
+  text-wrap: nowrap;
+  grid-template-columns: repeat(3, min-content);
+  gap: 0 1rem; /* Tailwind equivalent of gap-4 */
+  align-items: center;
+}
