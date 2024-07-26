@@ -1,37 +1,26 @@
 import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import * as d3 from "d3"
 import React from "react";
-
-const filterLastXHours = (x, data) => {
-  const now = new Date()
-  const oneDayAgo = new Date(now.getTime() - x)
-  return data.filter(entry => new Date(entry.createdAt) >= oneDayAgo)
-};
-
-const filterLast24Hours = (data) => {
-  return filterLastXHours(24 * 60 * 60 * 1000, data)
-}
-
-const monitoredDataTypes = ["keyPresses", "leftClicks", "rightClicks", "mouseMovements"]
+import { filterLastXMs } from "@/utils";
+import { ActivityChartProps } from "@/componentProps";
+import { MS_IN_DAY } from "@/constants/durations";
+import CustomTooltip from "./CustomTooltip";
 
 const dataKeys = {
   "keyPresses": {
     dataKey: "Key Presses",
     linearGradientId: "colorUv",
     colour: "#8884d8"
-
   }, 
   "leftClicks": {
     dataKey: "Left Clicks",
     linearGradientId: "colorPv",
     colour: "#82ca9d"
-
   }, 
   "rightClicks": {
     dataKey: "Right Clicks",
     linearGradientId: "colorRc",
     colour: "#ffc658"
-
   }, 
   "mouseMovements": {
     dataKey: "Mouse Movements",
@@ -40,23 +29,23 @@ const dataKeys = {
   }
 }
 
-const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) => {
-  // get data within last 24 hours
-  const filteredKeypresses = filterLast24Hours(keyPresses)
-  const filteredLeftClicks = filterLast24Hours(leftClicks)
-  const filteredRightClicks = filterLast24Hours(rightClicks)
-  const filteredMouseMovements = filterLast24Hours(mouseMovements)
+const ActivityChart: React.FC<ActivityChartProps> = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) => {
+  const filterWindow = MS_IN_DAY // filter data within last 24 hours
+
+  const filteredKeypresses = filterLastXMs(filterWindow, keyPresses)
+  const filteredLeftClicks = filterLastXMs(filterWindow, leftClicks)
+  const filteredRightClicks = filterLastXMs(filterWindow, rightClicks)
+  const filteredMouseMovements = filterLastXMs(filterWindow, mouseMovements)
 
   // Combine the data into a single array, adding a type property for differentiation
   const combinedData = [
     ...filteredKeypresses.map(data => ({ ...data, type: 'Key Presses' })),
     ...filteredLeftClicks.map(data => ({ ...data, type: 'Left Clicks' })),
     ...filteredRightClicks.map(data => ({ ...data, type: 'Right Clicks' })),
-    ...filteredMouseMovements.map(data => ({ ...data, type: "Mouse Movements" }))
+    ...filteredMouseMovements.map(data => ({ ...data, type: 'Mouse Movements' }))
   ]
 
-  // choose intervals to collate data
-  const numPoints = 24*1*3
+  const numPoints = 24*1*3 // How many intervals to group data at
 
   // Calculate interval duration in milliseconds (24 hours divided by 72 intervals)
   const intervalDuration = 24 * 60 * 60 * 1000 / numPoints
@@ -65,8 +54,12 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
   const now = new Date()
   const intervals = Array.from({ length: 72 }, (_, index) => now.getTime() - index * intervalDuration)
 
+  interface IntervalMapping {
+    [timestamp: number]: any;
+  }
+
   // Use reduce to initialize the object with each interval timestamp mapped to 0
-  const intervalMapping = intervals.reduce((acc, timestamp) => {
+  const intervalMapping: IntervalMapping = intervals.reduce((acc, timestamp) => {
     acc[timestamp] = { 
       'Key Presses': 0, 
       'Left Clicks': 0, 
@@ -74,15 +67,25 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
       'Mouse Movements': 0
     }
     return acc
-  }, {})
+  }, {} as IntervalMapping)
 
   combinedData.forEach((data) => {
+    // Convert createdAt to timestamp
+    const createdAtTimestamp = data.createdAt.getTime();
+  
     intervals.forEach((timeInterval: number) => {
-      if (data.createdAt<timeInterval && data.createdAt>timeInterval-intervalDuration) {
-        intervalMapping[timeInterval][data.type] += data.count !== undefined ? data.count : Math.round(data.amount)
+      if (createdAtTimestamp < timeInterval && createdAtTimestamp > timeInterval - intervalDuration) {
+        intervalMapping[timeInterval] = intervalMapping[timeInterval] || {
+          'Key Presses': 0,
+          'Left Clicks': 0,
+          'Right Clicks': 0,
+          'Mouse Movements': 0
+        }
+        
+        intervalMapping[timeInterval][data.type] += 'count' in data ? data.count : Math.round(data.amount || 0);
       }
-    })
-  })
+    });
+  });
 
   const transformedData = Object.entries(intervalMapping).map(([timestamp, values]) => {
     return { name: Number(timestamp), ...values }
@@ -91,8 +94,10 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
   const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000
 
   const domainToday = d3.scaleTime().domain([new Date(twentyFourHoursAgo), new Date(now)])
-  const timeFormatter = (tick) => {return d3.timeFormat('%H:%M')(new Date(tick))}
-  const ticks = domainToday.ticks(d3.timeHour.every(2)).map(tick => tick.getTime())
+  const timeFormatter = (tick: Date): string => {
+    return d3.timeFormat('%H:%M')(tick);
+  };
+  const ticks = domainToday.ticks(d3.timeHour.every(2)!).map(tick => tick.getTime())
 
   return (
     <div className="w-full h-[300px] group">
@@ -100,10 +105,10 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
         <AreaChart width={730} height={250} data={transformedData}>
           <defs>
             {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
-            {monitoredDataTypes.map((obj, i) => (
-              <linearGradient key={i} id={dataKeys[obj].linearGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={dataKeys[obj].colour} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={dataKeys[obj].colour} stopOpacity={0} />
+            {Object.entries(dataKeys).map(([key, item]) => (
+              <linearGradient key={key} id={item.linearGradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={item.colour} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={item.colour} stopOpacity={0} />
               </linearGradient>
             ))}
           </defs>
@@ -141,14 +146,14 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
           />
           <Legend layout="horizontal" verticalAlign="bottom" align="center" />
           
-          {monitoredDataTypes.map((obj, i) => (
+          {Object.entries(dataKeys).map(([key, item]) => (
             <Area 
-              key={i}
+              key={key}
               type="monotone" 
-              dataKey={dataKeys[obj].dataKey} 
-              stroke={dataKeys[obj].colour} 
+              dataKey={item.dataKey} 
+              stroke={item.colour} 
               fillOpacity={1} 
-              fill={`url(#${dataKeys[obj].linearGradientId})`} 
+              fill={`url(#${item.linearGradientId})`} 
               activeDot={false} 
             />
           ))}
@@ -159,37 +164,3 @@ const ActivityChart = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) 
 }
 
 export default ActivityChart
-
-const CustomTooltip = ({ active, payload, label }) => {
-  const dateLabel = new Date(label)
-
-  if (active && payload && payload.length) {
-    return (
-      <div className="custom-tooltip border p-3 py-2 bg-black">
-        <p className="label">
-          {dateLabel.toLocaleTimeString('en-GB', {
-            year: 'numeric', 
-            month: 'numeric', 
-            day: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit'
-          })}
-        </p>
-        
-        <div className="tooltip-legend">
-          {payload.map((pld) => (
-            // adding key to react fragment so nextjs doesn't throw a tantrum
-            // https://stackoverflow.com/questions/73359286/can-you-add-properties-to-the-empty-element-in-react
-            <React.Fragment key={pld.dataKey}>
-              <div className="w-3 h-3" style={{backgroundColor: pld.color}}></div>
-              <div>{pld.dataKey}</div>
-              <div>{pld.value}</div>
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  return null
-}

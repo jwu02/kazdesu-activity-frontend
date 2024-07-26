@@ -1,4 +1,9 @@
-const ActivitySummary = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) => {
+import React from 'react'
+
+import { ActivitySummaryProps, DataSummaryContainerProps } from "@/componentProps"
+import { formatCount, formatMeasurement } from '@/utils'
+
+const ActivitySummary: React.FC<ActivitySummaryProps> = ({ keyPresses, leftClicks, rightClicks, mouseMovements }) => {
   return (
     <div className="flex justify-around">
       <DataSummaryContainer 
@@ -26,30 +31,7 @@ const ActivitySummary = ({ keyPresses, leftClicks, rightClicks, mouseMovements }
 
 export default ActivitySummary
 
-const formatCount = (count: number) => {
-  if (count >= 10000) {
-    return `${Math.floor(count/1000)}k`
-  }
-  return String(count)
-}
-
-const formatMeasurement = (amount: number) => {
-  if (amount >= 1000) {
-    amount = amount/1000
-  } else {
-    return amount
-  }
-
-  if (amount >= 10) {
-    amount = Math.floor(amount)
-  } else {
-    amount = Math.floor(amount*10)/10
-  }
-
-  return String(amount)+'k'
-}
-
-const DataSummaryContainer = ({ label, total }) => {
+const DataSummaryContainer: React.FC<DataSummaryContainerProps> = ({ label, total }) => {
   return (
     <div className="flex flex-col items-center py-3 px-5">
       <span className="text-nowrap text-sm">{label}</span>

@@ -4,6 +4,10 @@ import { getKeyPresses, getLeftClicks, getMouseMovements, getRightClicks } from 
 import { useEffect, useState } from "react";
 import ActivityChart from "./ActivityChart";
 import ActivitySummary from "./ActivitySummary";
+import { KeyPress } from "@/constants/key-press";
+import { LeftClick } from "@/constants/left-click";
+import { RightClick } from "@/constants/right-click";
+import { MouseMovement } from "@/constants/mouse-movement";
 
 const ActivityDashboard = () => {
   const [keyPresses, setKeyPresses] = useState<KeyPress[]>([])
