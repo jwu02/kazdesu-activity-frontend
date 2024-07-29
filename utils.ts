@@ -1,6 +1,9 @@
-import { PcActivity } from "./constants/activity";
+import { PcActivity } from "@/types"
+import { MS_IN_DAY } from "@/constants"
 
-export const filterLastXMs = (x: number, data: PcActivity[]): PcActivity[] => {
+import * as d3 from "d3"
+
+export const filterActivityData = (x: number, data: PcActivity[]): PcActivity[] => {
   // x should be given in milliseconds
   const now = new Date()
   const oneDayAgo = new Date(now.getTime() - x)
@@ -28,4 +31,27 @@ export const formatMeasurement = (amount: number) => {
   }
 
   return String(amount)+'k'
+}
+
+export const timeTickHourFormatter = (tick: Date): string => {
+  return d3.timeFormat('%H:%M')(tick)
+}
+
+export const timeTickDateFormatter = (tick: Date): string => {
+  return d3.timeFormat('%m/%d')(tick)
+}
+
+export const getTimeTicks = (now: number, filterWindow: number) => {
+  // This function generates an array of time ticks within a specified time window.
+  const startTime = new Date(now - filterWindow)
+  const endTime = now
+
+  const domain = d3.scaleTime().domain([startTime, endTime])
+  // If filterWindow displaying data from past day/24 hours, display ticks for every 3 hours, else every 1 day
+  const tickInterval = filterWindow > MS_IN_DAY ? d3.timeDay.every(1) : d3.timeHour.every(3)
+
+  // Create a time scale and generate ticks at regular intervals (every 2 hours by default) within the given time range
+  const ticks = domain.ticks(tickInterval!).map(tick => tick.getTime())
+
+  return ticks
 }

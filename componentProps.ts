@@ -1,28 +1,19 @@
-import { KeyPress } from "./constants/key-press";
-import { LeftClick } from "./constants/left-click";
-import { MouseMovement } from "./constants/mouse-movement";
-import { RightClick } from "./constants/right-click";
+import { ActivityDataStateType, ActivityTypeKey } from "@/types";
+import { TooltipProps } from 'recharts';
 
 export interface ActivitySummaryProps {
-  keyPresses: KeyPress[];
-  leftClicks: LeftClick[];
-  rightClicks: RightClick[];
-  mouseMovements: MouseMovement[];
+  activityData: ActivityDataStateType
 }
 
 export interface DataSummaryContainerProps {
+  activityType: ActivityTypeKey
   label: string;
   total: number;
 }
 
 export interface ActivityChartProps {
-  keyPresses: KeyPress[];
-  leftClicks: LeftClick[];
-  rightClicks: RightClick[];
-  mouseMovements: MouseMovement[];
+  activityData: ActivityDataStateType
 }
-
-import { TooltipProps } from 'recharts';
 
 export interface CustomTooltipProps<ValueType extends string | number = number, NameType extends string | number = string> extends TooltipProps<ValueType, NameType> {
   active?: boolean;
