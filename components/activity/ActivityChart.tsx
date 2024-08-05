@@ -1,10 +1,10 @@
 import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import React, { useState } from "react"
-import { filterActivityData, getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/utils"
-import { ActivityChartProps } from "@/componentProps"
-import { activityTypeMapping, filterWindowMapping, MS_IN_DAY } from "@/constants"
+import { filterActivityData, getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/lib/utils"
+import { ActivityChartProps } from "@/lib/componentProps"
+import { activityTypeMapping, filterWindowMapping, MS_IN_DAY } from "@/lib/constants"
 import CustomTooltip from "@/components/activity/CustomTooltip"
-import { ActivityTypeKey, IntervalMapping } from "@/types"
+import { ActivityTypeKey, IntervalMapping } from "@/lib/types"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {

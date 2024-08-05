@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { CustomTooltipProps } from "@/componentProps";
+import { CustomTooltipProps } from "@/lib/componentProps";
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active = false, payload = [], label = '' }) => {
   const dateLabel = new Date(label)

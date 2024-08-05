@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { ActivitySummaryProps, DataSummaryContainerProps } from "@/componentProps"
-import { formatCount, formatMeasurement } from '@/utils'
-import { ActivityTypeKey } from '@/types'
-import { activityTypeMapping } from '@/constants'
+import { ActivitySummaryProps, DataSummaryContainerProps } from "@/lib/componentProps"
+import { formatCount, formatMeasurement } from '@/lib/utils'
+import { ActivityTypeKey } from '@/lib/types'
+import { activityTypeMapping } from '@/lib/constants'
 
 const ActivitySummary: React.FC<ActivitySummaryProps> = ({ activityData }) => {
   return (

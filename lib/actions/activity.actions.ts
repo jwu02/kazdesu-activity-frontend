@@ -1,7 +1,7 @@
 'use server'
 
-import { activityTypeMapping } from "@/constants";
-import { ActivityTypeKey } from "@/types";
+import { activityTypeMapping } from "@/lib/constants";
+import { ActivityTypeKey } from "@/lib/types";
 
 const ACTIVITY_ENDPOINT = `${process.env.API_ENDPOINT}/activity`
 

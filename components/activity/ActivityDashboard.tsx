@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 
 import ActivityChart from "@/components/activity/ActivityChart";
 import ActivitySummary from "@/components/activity/ActivitySummary";
-import { ActivityDataStateType } from "@/types";
+import { ActivityDataStateType } from "@/lib/types";
 import { getActivityData } from "@/lib/actions/activity.actions";
-import { MS_IN_MINUTE } from "@/constants";
+import { MS_IN_MINUTE } from "@/lib/constants";
 
 const ActivityDashboard = () => {
 

@@ -1,4 +1,4 @@
-import { ActivityDataStateType, ActivityTypeKey } from "@/types";
+import { ActivityDataStateType, ActivityTypeKey } from "@/lib/types";
 import { TooltipProps } from 'recharts';
 
 export interface ActivitySummaryProps {
