@@ -2,17 +2,16 @@ import { ActivityDataStateType, ActivityTypeKey } from "@/types";
 import { TooltipProps } from 'recharts';
 
 export interface ActivitySummaryProps {
-  activityData: ActivityDataStateType
+  activityData: ActivityDataStateType;
 }
 
 export interface DataSummaryContainerProps {
-  activityType: ActivityTypeKey
-  label: string;
+  activityType: ActivityTypeKey;
   total: number;
 }
 
 export interface ActivityChartProps {
-  activityData: ActivityDataStateType
+  activityData: ActivityDataStateType;
 }
 
 export interface CustomTooltipProps<ValueType extends string | number = number, NameType extends string | number = string> extends TooltipProps<ValueType, NameType> {

@@ -12,7 +12,6 @@ const ActivitySummary: React.FC<ActivitySummaryProps> = ({ activityData }) => {
         Object.keys(activityData).map(key => (
           <DataSummaryContainer key={key}
             activityType={key as ActivityTypeKey}
-            label={activityTypeMapping[key as ActivityTypeKey].summaryLabel}
             total={
               key === 'mouseMovements'
                 ? activityData[key].reduce((t, obj) => t + obj.amount, 0)
@@ -27,22 +26,31 @@ const ActivitySummary: React.FC<ActivitySummaryProps> = ({ activityData }) => {
 
 export default ActivitySummary
 
-const DataSummaryContainer: React.FC<DataSummaryContainerProps> = ({ activityType, label, total }) => {
+const DataSummaryContainer: React.FC<DataSummaryContainerProps> = ({ activityType, total }) => {
+  const activityLabel = activityTypeMapping[activityType].summaryLabel
+  const typeColour = activityTypeMapping[activityType].colour
+
   return (
-    <div className="flex flex-col items-center py-3 px-5">
-      <span className="text-nowrap text-sm">{label}</span>
-      <span>
-        <span className="text-2xl font-black">
-          {activityType=="mouseMovements" ? 
-            <>
-              {formatMeasurement(total)}
-              <span className="text-xl">m</span>
-            </>
-            :
-            formatCount(total)
-          }
+    <div className="flex">
+      <div className="flex flex-col items-end py-2 px-5">
+        <span className="text-nowrap text-sm opacity-75">
+          {activityLabel}
         </span>
-      </span>
+        <span>
+          <span className="text-3xl font-black">
+            {activityType==="mouseMovements" ? 
+              <>
+                {formatMeasurement(total)}
+                <span className="text-2xl">m</span>
+              </>
+              :
+              formatCount(total)
+            }
+          </span>
+        </span>
+      </div>
+
+      <div className="h-full w-1.5 rounded-r-md" style={{background: typeColour }}></div>
     </div>
   )
 }

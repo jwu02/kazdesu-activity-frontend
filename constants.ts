@@ -10,28 +10,28 @@ export const activityTypeMapping = {
     endPoint: 'key-presses',
     summaryLabel: 'key presses',
     dataKey: 'Key Presses',
-    linearGradientId: 'colorUv',
-    colour: '#8884d8'
+    linearGradientId: 'colorKp',
+    colour: '#4477aa'
   }, 
   leftClicks: {
     endPoint: 'left-clicks',
     summaryLabel: 'left clicks',
     dataKey: 'Left Clicks',
-    linearGradientId: 'colorPv',
-    colour: '#82ca9d'
+    linearGradientId: 'colorLc',
+    colour: '#228833'
   }, 
   rightClicks: {
     endPoint: 'right-clicks',
     summaryLabel: 'right clicks',
     dataKey: 'Right Clicks',
     linearGradientId: 'colorRc',
-    colour: '#ffc658'
+    colour: '#ccbb44'
   }, 
   mouseMovements: {
     endPoint: 'mouse-movements',
     summaryLabel: 'walked mouse for',
     dataKey: 'Mouse Movements',
     linearGradientId: 'colorMm',
-    colour: '#83a6ed'
+    colour: '#aa3377'
   }
 }

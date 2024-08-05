@@ -52,7 +52,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {
           'Mouse Movements': 0
         }
         
-        intervalMapping[timeInterval][data.type] += 'count' in data ? data.count : Math.round(data.amount || 0)
+        intervalMapping[timeInterval][data.type] += 'count' in data ? data.count : Math.round(data.amount)
       }
     })
   })
@@ -102,7 +102,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {
             vertical={false} 
           />
           <Tooltip content={<CustomTooltip />} accessibilityLayer={false} isAnimationActive={false} />
-          <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          {/* <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="square" /> */}
           
           {Object.entries(activityTypeMapping).map(([key, item]) => (
             <Area 
