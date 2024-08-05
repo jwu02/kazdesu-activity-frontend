@@ -6,6 +6,7 @@ import ActivityChart from "@/components/activity/ActivityChart";
 import ActivitySummary from "@/components/activity/ActivitySummary";
 import { ActivityDataStateType } from "@/types";
 import { getActivityData } from "@/lib/actions/activity.actions";
+import { MS_IN_MINUTE } from "@/constants";
 
 const ActivityDashboard = () => {
 
@@ -31,8 +32,15 @@ const ActivityDashboard = () => {
     }
   }
 
+  const POLLING_FREQUENCY = MS_IN_MINUTE*10
+
   useEffect(() => {
     fetchActivityData()
+
+    // Set up polling
+    const intervalId = setInterval(fetchActivityData, POLLING_FREQUENCY)
+
+    return () => clearInterval(intervalId) // Clean up
   }, [])
 
   return (
