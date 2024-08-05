@@ -7,7 +7,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active = false, payload =
 
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip border p-3 py-2 bg-black">
+      <div className="custom-tooltip border border-border p-3 py-2 bg-background">
         <p className="label">
           {dateLabel.toLocaleTimeString('en-GB', {
             year: 'numeric', 

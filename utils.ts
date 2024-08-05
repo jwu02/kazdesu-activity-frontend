@@ -48,7 +48,22 @@ export const getTimeTicks = (now: number, filterWindow: number) => {
 
   const domain = d3.scaleTime().domain([startTime, endTime])
   // If filterWindow displaying data from past day/24 hours, display ticks for every 3 hours, else every 1 day
-  const tickInterval = filterWindow > MS_IN_DAY ? d3.timeDay.every(1) : d3.timeHour.every(3)
+  let tickInterval
+
+  switch (filterWindow) {
+    case MS_IN_DAY:
+      tickInterval = d3.timeHour.every(3)
+      break
+    case MS_IN_DAY*7:
+      tickInterval = d3.timeDay.every(1)
+      break
+    case MS_IN_DAY*30:
+      tickInterval = d3.timeDay.every(3)
+      break
+    default:
+      throw new Error("Invalid timeframe supplied.")
+  }
+
 
   // Create a time scale and generate ticks at regular intervals (every 2 hours by default) within the given time range
   const ticks = domain.ticks(tickInterval!).map(tick => tick.getTime())

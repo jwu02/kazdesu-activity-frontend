@@ -2,9 +2,10 @@ import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveCont
 import React, { useState } from "react"
 import { filterActivityData, getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/utils"
 import { ActivityChartProps } from "@/componentProps"
-import { activityTypeMapping, MS_IN_DAY } from "@/constants"
+import { activityTypeMapping, filterWindowMapping, MS_IN_DAY } from "@/constants"
 import CustomTooltip from "@/components/activity/CustomTooltip"
 import { ActivityTypeKey, IntervalMapping } from "@/types"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {
   // Filter for data within the last day / 24 hours by default
@@ -62,61 +63,83 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {
   })
 
   return (
-    <div className="w-full h-[300px] group">
-      <ResponsiveContainer>
-        <AreaChart width={730} height={250} data={chartData}>
-          <defs>
-            {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
-            {Object.entries(activityTypeMapping).map(([key, item]) => (
-              <linearGradient key={key} id={item.linearGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={item.colour} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={item.colour} stopOpacity={0} />
-              </linearGradient>
-            ))}
-          </defs>
-          
-          {/* fixed issue relating with plot offset when using scale='time' */}
-          {/* https://github.com/recharts/recharts/issues/154 */}
-          {/* also requires a domain for the data to be plotted properly */}
-          {/* https://github.com/recharts/recharts/issues/1080 */}
-          <XAxis
-            // className="hidden group-hover:block"
-            dataKey="name"
-            axisLine={false}
-            domain={['auto', 'auto']}
-            type='number'
-            scale='time'
-            ticks={getTimeTicks(now, filterWindow)}
-            tick={{ fill: 'white'}}
-            tickFormatter={filterWindow > MS_IN_DAY ? timeTickDateFormatter : timeTickHourFormatter}
-          />
-          <YAxis className="hidden group-hover:block" axisLine={false} tick={{ fill: 'white'}} tickCount={8} />
-          {/* adding a yaxis to the right to fix alignment */}
-          {/* https://www.geeksforgeeks.org/create-a-biaxial-line-chart-using-recharts-in-reactjs/ */}
-          <YAxis yAxisId="right-axis" orientation="right" />
+    <div className="flex flex-col">
+      <ToggleGroup type="single" variant="timeframe" size="xxs" defaultValue="day"
+        className="bg-gray-600 inline-flex rounded-full p-1 ml-auto mr-[7%]"
+      >
+        {Object.entries(filterWindowMapping).map(([key, { label, multiplier }]) => (
+          <ToggleGroupItem
+            key={key}
+            value={`${key}`}
+            onClick={() => setFilterWindow(MS_IN_DAY * multiplier)}
+            className="w-11"
+          >
+            {label}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
-          <CartesianGrid 
-            className="hidden group-hover:block" 
-            stroke="grey" 
-            strokeDasharray="3 3" 
-            vertical={false} 
-          />
-          <Tooltip content={<CustomTooltip />} accessibilityLayer={false} isAnimationActive={false} />
-          {/* <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="square" /> */}
-          
-          {Object.entries(activityTypeMapping).map(([key, item]) => (
-            <Area 
-              key={key}
-              type="monotone" 
-              dataKey={item.dataKey} 
-              stroke={item.colour} 
-              fillOpacity={1} 
-              fill={`url(#${item.linearGradientId})`} 
-              activeDot={false} 
+      <div className="w-full h-[300px] group">
+        <ResponsiveContainer>
+          <AreaChart width={730} height={250} data={chartData} margin={{ top: 20 }}>
+            <defs>
+              {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
+              {Object.entries(activityTypeMapping).map(([key, item]) => (
+                <linearGradient key={key} id={item.linearGradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={item.colour} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={item.colour} stopOpacity={0} />
+                </linearGradient>
+              ))}
+            </defs>
+            
+            {/* fixed issue relating with plot offset when using scale='time' */}
+            {/* https://github.com/recharts/recharts/issues/154 */}
+            {/* also requires a domain for the data to be plotted properly */}
+            {/* https://github.com/recharts/recharts/issues/1080 */}
+            <XAxis
+              // className="hidden group-hover:block"
+              dataKey="name"
+              axisLine={false}
+              domain={['auto', 'auto']}
+              type='number'
+              scale='time'
+              ticks={getTimeTicks(now, filterWindow)}
+              tick={{ fill: 'white'}}
+              tickFormatter={filterWindow > MS_IN_DAY ? timeTickDateFormatter : timeTickHourFormatter}
             />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
+            <YAxis 
+              className="hidden group-hover:block" 
+              axisLine={false} 
+              tick={{ fill: 'white'}} 
+              tickCount={8} 
+            />
+            {/* adding a yaxis to the right to fix alignment */}
+            {/* https://www.geeksforgeeks.org/create-a-biaxial-line-chart-using-recharts-in-reactjs/ */}
+            <YAxis yAxisId="right-axis" orientation="right" />
+
+            <CartesianGrid 
+              className="hidden group-hover:block" 
+              stroke="grey" 
+              strokeDasharray="3 3" 
+              vertical={false} 
+            />
+            <Tooltip content={<CustomTooltip />} accessibilityLayer={false} isAnimationActive={false} />
+            {/* <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="square" /> */}
+            
+            {Object.entries(activityTypeMapping).map(([key, item]) => (
+              <Area 
+                key={key}
+                type="monotone" 
+                dataKey={item.dataKey} 
+                stroke={item.colour} 
+                fillOpacity={1} 
+                fill={`url(#${item.linearGradientId})`} 
+                activeDot={false} 
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }

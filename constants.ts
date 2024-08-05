@@ -35,3 +35,18 @@ export const activityTypeMapping = {
     colour: '#aa3377'
   }
 }
+
+export const filterWindowMapping = {
+  day: {
+    label: '24h',
+    multiplier: 1
+  },
+  week: {
+    label: '7d',
+    multiplier: 7
+  },
+  month: {
+    label: '30d',
+    multiplier: 30
+  }
+}

@@ -14,7 +14,7 @@ const Banner = () => {
       {/* TODO get image dynamically from twitter profile + set username */}
       <Image
         alt="profile picture sourced from my X/Twitter profile"
-        src="https://pbs.twimg.com/profile_images/1810680453344473088/GsowsvJ2_400x400.jpg"
+        src="https://pbs.twimg.com/profile_images/1820554178470494208/-5yVQtZ1_400x400.jpg"
         width={150}
         height={150}
       />
