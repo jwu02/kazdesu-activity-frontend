@@ -1,147 +1,147 @@
-import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import React, { useState } from "react"
-import { filterActivityData, getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/lib/utils"
+import React from 'react'
+
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/lib/utils"
 import { ActivityChartProps } from "@/lib/componentProps"
-import { activityTypeMapping, filterWindowMapping, MS_IN_DAY } from "@/lib/constants"
-import CustomTooltip from "@/components/activity/CustomTooltip"
-import { ActivityTypeKey, IntervalMapping } from "@/lib/types"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { activityTypeMapping, MS_IN_DAY } from "@/lib/constants"
 
-const ActivityChart: React.FC<ActivityChartProps> = ({ activityData }) => {
-  // Filter for data within the last day / 24 hours by default
-  const [filterWindow, setFilterWindow] = useState<number>(MS_IN_DAY)
+const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, now }) => {
+  const timeTicks = getTimeTicks(now, filterWindow)
+  const timeTickFormatter = filterWindow > MS_IN_DAY ? timeTickDateFormatter : timeTickHourFormatter
+  const tickColor = 'hsl(var(--foreground))'
 
-  // Use filtering and combining activity data
-  const combinedData = Object.entries(activityData).flatMap(([key, data]) => {
-    const filteredData = filterActivityData(filterWindow, data)
-
-    return filteredData.map(item => ({ 
-      ...item, 
-      type: activityTypeMapping[key as ActivityTypeKey].dataKey 
-    }))
-  })
-
-  const numPoints = 24*1*3 // How many intervals to group data at
-
-  // Calculate interval duration in milliseconds (e.g. 24 hours divided by 72 numPoints / intervals)
-  const intervalDuration = filterWindow / numPoints
-
-  // Create an array of timestamps for the last 24 hours, split into 72 intervals
-  const now = new Date().getTime()
-  const intervals = Array.from({ length: numPoints }, (_, index) => now - index*intervalDuration)
-
-  // Use reduce to initialize the object with each interval timestamp mapped to 0
-  const intervalMapping: IntervalMapping = intervals.reduce((acc, timestamp) => {
-    acc[timestamp] = { 
-      'Key Presses': 0, 
-      'Left Clicks': 0, 
-      'Right Clicks': 0,
-      'Mouse Movements': 0
-    }
-    return acc
-  }, {} as IntervalMapping)
-
-  combinedData.forEach((data) => {
-    const createdAtTimestamp = data.createdAt.getTime()
-  
-    intervals.forEach((timeInterval: number) => {
-      if (createdAtTimestamp < timeInterval && createdAtTimestamp > timeInterval - intervalDuration) {
-        intervalMapping[timeInterval] = intervalMapping[timeInterval] || {
-          'Key Presses': 0,
-          'Left Clicks': 0,
-          'Right Clicks': 0,
-          'Mouse Movements': 0
-        }
-        
-        intervalMapping[timeInterval][data.type] += 'count' in data ? data.count : Math.round(data.amount)
-      }
-    })
-  })
-
-  const chartData = Object.entries(intervalMapping).map(([timestamp, values]) => {
-    return { name: Number(timestamp), ...values }
-  })
+  const [hiddenSeries, setHiddenSeries] = React.useState<Array<string>>([])
 
   return (
-    <div className="flex flex-col">
-      <ToggleGroup type="single" variant="timeframe" size="xxs" defaultValue="day"
-        className="bg-gray-600 inline-flex rounded-full p-1 ml-auto mr-[7%]"
-      >
-        {Object.entries(filterWindowMapping).map(([key, { label, multiplier }]) => (
-          <ToggleGroupItem
+    <ResponsiveContainer className="group">
+      <AreaChart width={730} height={250} data={chartData} margin={{ top: 20 }}>
+        <defs>
+          {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
+          {Object.entries(activityTypeMapping).map(([key, item]) => (
+            <linearGradient key={key} id={item.linearGradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={item.colour} stopOpacity={0.8} />
+              <stop offset="95%" stopColor={item.colour} stopOpacity={0} />
+            </linearGradient>
+          ))}
+        </defs>
+        
+        {/* fixed issue relating with plot offset when using scale='time' */}
+        {/* https://github.com/recharts/recharts/issues/154 */}
+        {/* also requires a domain for the data to be plotted properly */}
+        {/* https://github.com/recharts/recharts/issues/1080 */}
+        <XAxis
+          // className="hidden group-hover:block"
+          dataKey="name"
+          axisLine={false}
+          domain={['auto', 'auto']}
+          type='number'
+          scale='time'
+          ticks={timeTicks}
+          tick={{ fill: tickColor}}
+          stroke=""
+          tickFormatter={timeTickFormatter}
+        />
+        <YAxis 
+          className="hidden group-hover:block" 
+          axisLine={false} 
+          tick={{ fill: tickColor}} 
+          stroke=""
+          tickCount={8} 
+        />
+        {/* adding a yaxis to the right to fix alignment */}
+        {/* https://www.geeksforgeeks.org/create-a-biaxial-line-chart-using-recharts-in-reactjs/ */}
+        <YAxis yAxisId="right-axis" orientation="right" />
+
+        <CartesianGrid 
+          className="hidden group-hover:block" 
+          stroke="grey" 
+          strokeDasharray="3 3" 
+          vertical={false} 
+        />
+        <Tooltip content={<CustomTooltip />} accessibilityLayer={false} isAnimationActive={false} />
+        <Legend content={<CustomLegend hiddenSeries={hiddenSeries} setHiddenSeries={setHiddenSeries} />}/>
+        
+        {Object.entries(activityTypeMapping).map(([key, item]) => (
+          <Area 
             key={key}
-            value={`${key}`}
-            onClick={() => setFilterWindow(MS_IN_DAY * multiplier)}
-            className="w-11"
-          >
-            {label}
-          </ToggleGroupItem>
+            hide={hiddenSeries.includes(item.dataKey)}
+            type="monotone" 
+            dataKey={item.dataKey} 
+            stroke={item.colour} 
+            fillOpacity={1} 
+            fill={`url(#${item.linearGradientId})`} 
+            activeDot={false} 
+          />
         ))}
-      </ToggleGroup>
-
-      <div className="w-full h-[300px] group">
-        <ResponsiveContainer>
-          <AreaChart width={730} height={250} data={chartData} margin={{ top: 20 }}>
-            <defs>
-              {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
-              {Object.entries(activityTypeMapping).map(([key, item]) => (
-                <linearGradient key={key} id={item.linearGradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={item.colour} stopOpacity={0.8} />
-                  <stop offset="95%" stopColor={item.colour} stopOpacity={0} />
-                </linearGradient>
-              ))}
-            </defs>
-            
-            {/* fixed issue relating with plot offset when using scale='time' */}
-            {/* https://github.com/recharts/recharts/issues/154 */}
-            {/* also requires a domain for the data to be plotted properly */}
-            {/* https://github.com/recharts/recharts/issues/1080 */}
-            <XAxis
-              // className="hidden group-hover:block"
-              dataKey="name"
-              axisLine={false}
-              domain={['auto', 'auto']}
-              type='number'
-              scale='time'
-              ticks={getTimeTicks(now, filterWindow)}
-              tick={{ fill: 'white'}}
-              tickFormatter={filterWindow > MS_IN_DAY ? timeTickDateFormatter : timeTickHourFormatter}
-            />
-            <YAxis 
-              className="hidden group-hover:block" 
-              axisLine={false} 
-              tick={{ fill: 'white'}} 
-              tickCount={8} 
-            />
-            {/* adding a yaxis to the right to fix alignment */}
-            {/* https://www.geeksforgeeks.org/create-a-biaxial-line-chart-using-recharts-in-reactjs/ */}
-            <YAxis yAxisId="right-axis" orientation="right" />
-
-            <CartesianGrid 
-              className="hidden group-hover:block" 
-              stroke="grey" 
-              strokeDasharray="3 3" 
-              vertical={false} 
-            />
-            <Tooltip content={<CustomTooltip />} accessibilityLayer={false} isAnimationActive={false} />
-            {/* <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="square" /> */}
-            
-            {Object.entries(activityTypeMapping).map(([key, item]) => (
-              <Area 
-                key={key}
-                type="monotone" 
-                dataKey={item.dataKey} 
-                stroke={item.colour} 
-                fillOpacity={1} 
-                fill={`url(#${item.linearGradientId})`} 
-                activeDot={false} 
-              />
-            ))}
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+      </AreaChart>
+    </ResponsiveContainer>
   )
 }
 
 export default ActivityChart
+
+import { CustomTooltipProps } from "@/lib/componentProps"
+import { FaSquare } from 'react-icons/fa6'
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active = false, payload = [], label = '' }) => {
+  const dateLabel = new Date(label)
+
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip border border-foreground p-3 py-2 bg-background">
+        <p className="label">
+          {dateLabel.toLocaleTimeString('en-GB', {
+            year: 'numeric', 
+            month: 'numeric', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit'
+          })}
+        </p>
+        
+        <div className="tooltip-legend">
+          {payload.map((pld) => (
+            // adding key to react fragment so nextjs doesn't throw a tantrum
+            // https://stackoverflow.com/questions/73359286/can-you-add-properties-to-the-empty-element-in-react
+            <React.Fragment key={pld.dataKey}>
+              <FaSquare color={pld.color} />
+              <div>{pld.dataKey}</div>
+              <div>{pld.value}</div>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
+
+const CustomLegend = ({ payload, hiddenSeries, setHiddenSeries }) => {
+
+  const handleLegendClick = (dataKey: string) => {
+    if (hiddenSeries.includes(dataKey)) {
+      setHiddenSeries(hiddenSeries.filter(el => el !== dataKey))
+    } else {
+      // if (hiddenSeries.length < Object.keys(activityTypeMapping).length-1) {
+        setHiddenSeries(prev => [...prev, dataKey])
+      // }
+    }
+  }
+
+  return (
+    <div className="flex justify-center gap-6">
+      {payload.map((pld) => (
+        <div 
+          key={pld.dataKey} 
+          className={`flex flex-nowrap items-center gap-1 hover:cursor-pointer 
+            ${hiddenSeries.includes(pld.dataKey) && 'opacity-20'}`} 
+          onClick={()=>handleLegendClick(pld.dataKey)}
+        >
+          <FaSquare color={pld.color} />
+          <span className="opacity-75 hover:opacity-100">{pld.dataKey}</span>
+        </div>
+      ))}
+    </div>
+  )
+}

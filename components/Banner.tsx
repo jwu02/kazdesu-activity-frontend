@@ -5,19 +5,28 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { FaCircle, FaCircleDot } from 'react-icons/fa6'
 
+// import dynamic from 'next/dynamic';
+
+// const AsciiArtDisplay = dynamic(() => import('@/components/AsciiArtDisplay'), {
+//   ssr: false, // This ensures the component is only rendered on the client side
+// });
+
 const Banner = () => {
   const intro = "hello i am tony"
-  const bio = "a cs graduate from the uk, currently maidenless, jobless and soon homeless. looking for opportunities including voluntry work."
-  
+  const bio = "a cs graduate from the uk, currently jobless, maidenless and soon homeless. looking for opportunities including voluntry work."
+  const pfpImgSrc = "/pfp.jpg"
+
   return (
     <div className="flex gap-5 mb-5">
-      {/* TODO get image dynamically from twitter profile + set username */}
       <Image
-        alt="profile picture sourced from my X/Twitter profile"
-        src="https://pbs.twimg.com/profile_images/1820554178470494208/-5yVQtZ1_400x400.jpg"
+        className="rounded-lg"
+        alt="profile picture"
+        src={pfpImgSrc}
         width={150}
         height={150}
       />
+
+      {/* <AsciiArtDisplay imageUrl={pfpImgSrc} /> */}
 
       <div className="flex flex-col justify-between">
         <StatusLabel />

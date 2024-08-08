@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
-import ActivityChart from "@/components/activity/ActivityChart";
-import ActivitySummary from "@/components/activity/ActivitySummary";
-import { ActivityDataStateType } from "@/lib/types";
-import { getActivityData } from "@/lib/actions/activity.actions";
-import { MS_IN_MINUTE } from "@/lib/constants";
+import AllActivitySummary from "@/components/activity/AllActivitySummary"
+import { ActivityDataStateType } from "@/lib/types"
+import { getActivityData } from "@/lib/actions/activity.actions"
+import { MS_IN_MINUTE } from "@/lib/constants"
+import ChartContainer from "./ChartContainer"
 
 const ActivityDashboard = () => {
 
@@ -46,8 +46,8 @@ const ActivityDashboard = () => {
   return (
     <div className="flex flex-col gap-4">
       <h1>activity</h1>
-      <ActivitySummary activityData={activityData} />
-      <ActivityChart activityData={activityData} />
+      <AllActivitySummary activityData={activityData} />
+      <ChartContainer activityData={activityData} />
     </div>
   )
 }

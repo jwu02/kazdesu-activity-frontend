@@ -1,3 +1,6 @@
+import { LuRat } from "react-icons/lu"
+import { PiKeyboardFill, PiMouseLeftClickFill, PiMouseRightClickFill } from "react-icons/pi"
+
 export const MS_IN_SECOND = 1000
 export const MS_IN_MINUTE = 60*MS_IN_SECOND
 export const MS_IN_HOUR = 60*MS_IN_MINUTE
@@ -11,28 +14,32 @@ export const activityTypeMapping = {
     summaryLabel: 'key presses',
     dataKey: 'Key Presses',
     linearGradientId: 'colorKp',
-    colour: '#4477aa'
+    colour: '#4477aa',
+    icon: PiKeyboardFill
   }, 
   leftClicks: {
     endPoint: 'left-clicks',
     summaryLabel: 'left clicks',
     dataKey: 'Left Clicks',
     linearGradientId: 'colorLc',
-    colour: '#228833'
+    colour: '#228833',
+    icon: PiMouseLeftClickFill
   }, 
   rightClicks: {
     endPoint: 'right-clicks',
     summaryLabel: 'right clicks',
     dataKey: 'Right Clicks',
     linearGradientId: 'colorRc',
-    colour: '#ccbb44'
+    colour: '#ccbb44',
+    icon: PiMouseRightClickFill
   }, 
   mouseMovements: {
     endPoint: 'mouse-movements',
     summaryLabel: 'walked mouse for',
     dataKey: 'Mouse Movements',
     linearGradientId: 'colorMm',
-    colour: '#aa3377'
+    colour: '#aa3377',
+    icon: LuRat
   }
 }
 
