@@ -1,9 +1,14 @@
+"use client"
+
 import { ActivitySummaryContainerProps, ActivitySummaryProps } from "@/lib/componentProps"
 import { formatCount, formatMeasurement } from '@/lib/utils'
 import { ActivityTypeKey } from '@/lib/types'
 import { activityTypeMapping } from '@/lib/constants'
 
-const ActivitySummaryContainer: React.FC<ActivitySummaryContainerProps> = ({ activityData }) => {
+import { animate } from 'framer-motion'
+import { useEffect, useRef } from "react"
+
+const ActivitySummaryContainer = ({ activityData }: ActivitySummaryContainerProps) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 place-items-end">
       {
@@ -28,8 +33,28 @@ const ActivitySummaryContainer: React.FC<ActivitySummaryContainerProps> = ({ act
 
 export default ActivitySummaryContainer
 
-const ActivitySummary: React.FC<ActivitySummaryProps> = ({ activityType, total }) => {
+const ActivitySummary = ({ activityType, total }: ActivitySummaryProps) => {
   const activityLabel = activityTypeMapping[activityType].summaryLabel
+  const totalFormatter = activityType==="mouseMovements" ? formatMeasurement : formatCount
+
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(()=>{
+    const element = ref.current;
+    if (!element) return
+
+    element.textContent = String(totalFormatter(total))
+
+    const controls = animate(0, total, {
+      duration: 2,
+      ease: "easeOut",
+      onUpdate(value) {
+        element.textContent = String(totalFormatter(value))
+      }
+    })
+
+    return () => controls.stop()
+  }, [total])
 
   return (
     <>
@@ -37,17 +62,11 @@ const ActivitySummary: React.FC<ActivitySummaryProps> = ({ activityType, total }
         {activityLabel}
       </span>
 
-      <span className="flex items-center">
-        <span className="text-3xl font-black">
-          {activityType==="mouseMovements" ? 
-            <>
-              {formatMeasurement(total)}
-              <span className="text-2xl">m</span>
-            </>
-            :
-            formatCount(total)
-          }
-        </span>
+      <span>
+        <span className="text-3xl font-black" ref={ref}>0</span>
+        {activityType==="mouseMovements" && 
+          <span className="text-2xl">m</span>
+        }
       </span>
     </>
   )

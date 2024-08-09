@@ -21,20 +21,20 @@ export const formatCount = (count: number) => {
   if (count >= 10000) {
     return `${Math.floor(count/1000)}k`
   }
-  return String(count)
+  return String(Math.floor(count))
 }
 
 export const formatMeasurement = (amount: number) => {
   if (amount >= 1000) {
     amount = amount/1000
   } else {
-    return amount
+    return Math.floor(amount)
   }
 
-  if (amount >= 10) {
+  if (amount >= 100) {
     amount = Math.floor(amount)
   } else {
-    amount = Math.floor(amount*10)/10
+    amount = round(amount, 1)
   }
 
   return String(amount)+'k'
@@ -76,4 +76,9 @@ export const getTimeTicks = (now: number, filterWindow: number) => {
   const ticks = domain.ticks(tickInterval!).map(tick => tick.getTime())
 
   return ticks
+}
+
+export const round = (value: number, precision: number) => {
+  const multiplier = Math.pow(10, precision || 0)
+  return Math.round(value * multiplier) / multiplier
 }
