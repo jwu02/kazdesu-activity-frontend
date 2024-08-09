@@ -17,9 +17,9 @@ const Banner = () => {
   const pfpImgSrc = "/pfp.jpg"
 
   return (
-    <div className="flex gap-5 mb-5">
+    <div className="flex flex-col sm:flex-row gap-5 mb-5">
       <Image
-        className="rounded-lg"
+        className="rounded-lg mx-auto sm:mx-0"
         alt="profile picture"
         src={pfpImgSrc}
         width={150}
@@ -28,8 +28,10 @@ const Banner = () => {
 
       {/* <AsciiArtDisplay imageUrl={pfpImgSrc} /> */}
 
-      <div className="flex flex-col justify-between">
-        <StatusLabel />
+      <div className="flex flex-col justify-between gap-2">
+        <div className="mx-auto sm:mx-0">
+          <StatusLabel />
+        </div>
         <h1>{intro}</h1>
         <div className="text-base">{bio}</div>
       </div>

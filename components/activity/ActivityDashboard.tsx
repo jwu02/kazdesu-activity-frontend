@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 
-import AllActivitySummary from "@/components/activity/AllActivitySummary"
+import ActivitySummaryContainer from "@/components/activity/ActivitySummaryContainer"
 import { ActivityDataStateType } from "@/lib/types"
 import { getAllActivityData } from "@/lib/actions/activity.actions"
 import { MS_IN_MINUTE } from "@/lib/constants"
-import ChartContainer from "./ChartContainer"
+import ActivityChartContainer from "./ActivityChartContainer"
 
 const ActivityDashboard = () => {
 
@@ -21,7 +21,6 @@ const ActivityDashboard = () => {
     try {
       const allActivityDataResult = await getAllActivityData()
       setAllActivityData(allActivityDataResult)
-      console.log(allActivityDataResult)
     } catch (err) {
       console.log(err)
     }
@@ -41,8 +40,8 @@ const ActivityDashboard = () => {
   return (
     <div className="flex flex-col gap-4">
       <h1>activity</h1>
-      <AllActivitySummary activityData={allActivityData} />
-      <ChartContainer activityData={allActivityData} />
+      <ActivitySummaryContainer activityData={allActivityData} />
+      <ActivityChartContainer activityData={allActivityData} />
     </div>
   )
 }

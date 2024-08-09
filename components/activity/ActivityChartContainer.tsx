@@ -6,9 +6,9 @@ import { activityTypeMapping, MS_IN_DAY } from '@/lib/constants'
 import { filterActivityData } from '@/lib/utils'
 import { ActivityTypeKey, IntervalMapping } from '@/lib/types'
 import ActivityChart from '@/components/activity/ActivityChart'
-import { ChartContainerProps } from '@/lib/componentProps'
+import { ActivityChartContainerProps } from '@/lib/componentProps'
 
-const ChartContainer: React.FC<ChartContainerProps> = ({ activityData }) => {
+const ActivityChartContainer: React.FC<ActivityChartContainerProps> = ({ activityData }) => {
   // Filter for data within the last day / 24 hours by default
   const [filterWindow, setFilterWindow] = useState<number>(MS_IN_DAY)
 
@@ -64,8 +64,8 @@ const ChartContainer: React.FC<ChartContainerProps> = ({ activityData }) => {
   })
 
   return (
-    <div className="flex flex-col">
-      <div className="inline-flex ml-auto mr-[7%]">
+    <div className="flex flex-col items-center">
+      <div className="sm:ml-auto sm:mr-[7%]">
         <TimeframeToggleGroup setFilterWindow={setFilterWindow} />
       </div>
       <div className="w-full h-[300px]">
@@ -75,4 +75,4 @@ const ChartContainer: React.FC<ChartContainerProps> = ({ activityData }) => {
   )
 }
 
-export default ChartContainer
+export default ActivityChartContainer

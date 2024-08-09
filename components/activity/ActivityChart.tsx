@@ -14,7 +14,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
 
   return (
     <ResponsiveContainer className="group">
-      <AreaChart width={730} height={250} data={chartData} margin={{ top: 20 }}>
+      <AreaChart width={730} height={250} data={chartData} margin={{ top: 20, right: 0, left: 0, bottom: 20 }}>
         <defs>
           {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
           {Object.entries(activityTypeMapping).map(([key, item]) => (
@@ -71,6 +71,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
             fillOpacity={1} 
             fill={`url(#${item.linearGradientId})`} 
             activeDot={false} 
+            // isAnimationActive={false}
           />
         ))}
       </AreaChart>
@@ -123,14 +124,15 @@ const CustomLegend = ({ payload, hiddenSeries, setHiddenSeries }) => {
     if (hiddenSeries.includes(dataKey)) {
       setHiddenSeries(hiddenSeries.filter(el => el !== dataKey))
     } else {
-      // if (hiddenSeries.length < Object.keys(activityTypeMapping).length-1) {
+      // ensure at least one activity type plot active on chart
+      if (hiddenSeries.length < Object.keys(activityTypeMapping).length-1) {
         setHiddenSeries(prev => [...prev, dataKey])
-      // }
+      }
     }
   }
 
   return (
-    <div className="flex justify-center gap-6">
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
       {payload.map((pld) => (
         <div 
           key={pld.dataKey} 

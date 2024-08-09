@@ -1,11 +1,11 @@
 import { ActivityDataStateType, ActivityTypeKey } from "@/lib/types";
 import { TooltipProps } from 'recharts';
 
-export interface ActivitySummaryProps {
+export interface ActivitySummaryContainerProps {
   activityData: ActivityDataStateType;
 }
 
-export interface ActivityTypeSummaryContainerProps {
+export interface ActivitySummaryProps {
   activityType: ActivityTypeKey;
   total: number;
 }
@@ -16,7 +16,7 @@ export interface ActivityChartProps {
   now: number;
 }
 
-export interface ChartContainerProps {
+export interface ActivityChartContainerProps {
   activityData: ActivityDataStateType;
 }
 
