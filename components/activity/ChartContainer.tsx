@@ -43,7 +43,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({ activityData }) => {
   }, {} as IntervalMapping)
 
   combinedData.forEach((data) => {
-    const createdAtTimestamp = data.createdAt.getTime()
+    const createdAtTimestamp = new Date(data.createdAt).getTime()
   
     intervals.forEach((timeInterval: number) => {
       if (createdAtTimestamp < timeInterval && createdAtTimestamp > timeInterval - intervalDuration) {

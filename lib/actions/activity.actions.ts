@@ -1,21 +1,13 @@
 'use server'
 
-import { activityTypeMapping } from "@/lib/constants";
-import { ActivityTypeKey } from "@/lib/types";
-
 const ACTIVITY_ENDPOINT = `${process.env.API_ENDPOINT}/activity`
 
 export async function getPCStatus() {
   return true
 }
 
-export async function getActivityData(activityType: string) {
-  // Type guard to ensure activityType is a valid key
-  if (!(activityType in activityTypeMapping)) {
-    throw new Error(`Invalid activity type: ${activityType}`)
-  }
-  
-  const response = await fetch(`${ACTIVITY_ENDPOINT}/${activityTypeMapping[activityType as ActivityTypeKey].endPoint}`, {
+export async function getAllActivityData() {
+  const response = await fetch(`${ACTIVITY_ENDPOINT}/all`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -24,11 +16,5 @@ export async function getActivityData(activityType: string) {
 
   const result = await response.json()
 
-  return result.data.map((item) => ({
-    id: item.id,
-    createdAt: new Date(item.createdAt),
-    ...(activityType === 'mouseMovements'
-      ? { amount: item.amount }
-      : { count: item.count })
-  }))
+  return result.data
 }
