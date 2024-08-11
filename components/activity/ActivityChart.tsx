@@ -13,8 +13,8 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
   const [hiddenSeries, setHiddenSeries] = React.useState<Array<string>>([])
 
   return (
-    <ResponsiveContainer className="group">
-      <AreaChart width={730} height={250} data={chartData} margin={{ top: 20, right: 0, left: 0, bottom: 20 }}>
+    <ResponsiveContainer className="group" width="100%" height={300}>
+      <AreaChart data={chartData} margin={{ top: 20, right: 0, left: 0, bottom: 20 }}>
         <defs>
           {/* remember map and forEach are not the same, use map for dynamically rendering elements */}
           {Object.entries(activityTypeMapping).map(([key, item]) => (
@@ -71,7 +71,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
             fillOpacity={1} 
             fill={`url(#${item.linearGradientId})`} 
             activeDot={false} 
-            // isAnimationActive={false}
+            isAnimationActive={false}
           />
         ))}
       </AreaChart>
@@ -84,7 +84,7 @@ export default ActivityChart
 import { CustomTooltipProps } from "@/lib/componentProps"
 import { FaSquare } from 'react-icons/fa6'
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active = false, payload = [], label = '' }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
   const dateLabel = new Date(label)
 
   if (active && payload && payload.length) {
@@ -107,7 +107,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active = false, payload =
             <React.Fragment key={pld.dataKey}>
               <FaSquare color={pld.color} />
               <div>{pld.dataKey}</div>
-              <div>{pld.value}</div>
+              <div>{pld.value}{pld.dataKey==="Mouse Movements" && "m"}</div>
             </React.Fragment>
           ))}
         </div>

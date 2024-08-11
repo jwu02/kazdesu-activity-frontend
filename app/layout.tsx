@@ -22,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="shortcut icon" href="/pfp.jpg" />
+      </head>
       <body className={robotoMono.className}>
         <ThemeProvider
           attribute="class"
