@@ -13,11 +13,11 @@ import { FaCircle, FaCircleDot } from 'react-icons/fa6'
 
 const Banner = () => {
   const intro = "hello i am tony"
-  const bio = "a cs graduate from the uk, currently jobless, maidenless and soon homeless. looking for opportunities including voluntry work."
+  const bio = "a cs graduate from the uk. i studied cs to build cool things, now i am jobless, maidenless and soon homeless"
   const pfpImgSrc = "/pfp.jpg"
 
   return (
-    <div className="flex flex-col sm:flex-row gap-5 mb-5">
+    <div className="flex flex-col sm:flex-row gap-5">
       <Image
         className="rounded-lg mx-auto sm:mx-0"
         alt="profile picture"
@@ -32,7 +32,7 @@ const Banner = () => {
         <div className="mx-auto sm:mx-0">
           <StatusLabel />
         </div>
-        <h1>{intro}</h1>
+        <div className="text-lg">{intro}</div>
         <div className="text-base">{bio}</div>
       </div>
     </div>

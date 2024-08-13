@@ -65,7 +65,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
           <Area 
             key={key}
             hide={hiddenSeries.includes(item.dataKey)}
-            type="monotone" 
+            type="linear" 
             dataKey={item.dataKey} 
             stroke={item.colour} 
             fillOpacity={1} 

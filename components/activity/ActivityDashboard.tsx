@@ -6,7 +6,7 @@ import ActivitySummaryContainer from "@/components/activity/ActivitySummaryConta
 import { ActivityDataStateType } from "@/lib/types"
 import { getAllActivityData } from "@/lib/actions/activity.actions"
 import { MS_IN_MINUTE } from "@/lib/constants"
-import ActivityChartContainer from "./ActivityChartContainer"
+import ActivityChartContainer from "@/components/activity/ActivityChartContainer"
 
 const ActivityDashboard = () => {
 
@@ -17,18 +17,18 @@ const ActivityDashboard = () => {
     mouseMovements: [],
   })
 
-  const fetchAllActivityData = async () => {
-    try {
-      const allActivityDataResult = await getAllActivityData()
-      setAllActivityData(allActivityDataResult)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
   const POLLING_FREQUENCY = MS_IN_MINUTE*10
 
   useEffect(() => {
+    const fetchAllActivityData = async () => {
+      try {
+        const allActivityDataResult = await getAllActivityData()
+        setAllActivityData(allActivityDataResult)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
     fetchAllActivityData()
 
     // Set up polling
@@ -39,7 +39,7 @@ const ActivityDashboard = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1>activity</h1>
+      <h1>pc activity</h1>
       <ActivitySummaryContainer activityData={allActivityData} />
       <ActivityChartContainer activityData={allActivityData} />
     </div>

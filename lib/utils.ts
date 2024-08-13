@@ -82,3 +82,52 @@ export const round = (value: number, precision: number) => {
   const multiplier = Math.pow(10, precision || 0)
   return Math.round(value * multiplier) / multiplier
 }
+
+export const getFilenameFromPath = (path: string) => {
+  // Split the path by '/' and get the last part
+  let filename = path.split('/').pop()
+
+  if (filename === undefined) {
+    filename = path
+  }
+    
+  // Remove the file extension
+  filename = filename.split('.').slice(0, -1).join('.')
+  
+  return filename
+}
+
+export const getDirectoryFromPath = (path: string) => {
+  let directory = path.split('/').slice(0, -1).join('/')
+
+  return directory
+}
+
+export const extractMarkdownLinks = (markdown: string) => {
+  // Regular expression to match substrings inside [[ ... ]]
+  const regex = /\[\[(.*?)\]\]/g
+
+  // Match all substrings and return them as an array
+  const matches = []
+  let match
+
+  while ((match = regex.exec(markdown)) !== null) {
+    // match[1] contains the text inside the brackets
+    matches.push(match[1])
+  }
+
+  return matches
+}
+
+export const computeDirectoryDistance = (path1: string, path2: string) => {
+  const segments1 = path1.split('/').filter(Boolean);
+  const segments2 = path2.split('/').filter(Boolean);
+
+  let commonLength = 0;
+  while (commonLength < segments1.length && commonLength < segments2.length && segments1[commonLength] === segments2[commonLength]) {
+      commonLength++;
+  }
+
+  const distance = (segments1.length - commonLength) + (segments2.length - commonLength);
+  return distance;
+}

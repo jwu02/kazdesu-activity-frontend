@@ -67,7 +67,7 @@
   }
 
   h1 {
-    @apply text-xl mb-2;
+    @apply text-xl mb-2 ml-7;
   }
 }
 
