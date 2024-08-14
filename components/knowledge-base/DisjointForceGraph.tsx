@@ -5,15 +5,17 @@ import * as d3 from 'd3'
 
 // https://observablehq.com/@d3/disjoint-force-directed-graph/2?intent=fork
 const DisjointForceGraph = ({ nodes, links }) => {
-  const svgRef = useRef(null)
-  const tooltipRef = useRef(null)
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const tooltipRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const SCALE = 0.75
+    const SCALE = 0.7
 
     const svgElement = svgRef.current
 
-    const { width, height } = svgElement.getBoundingClientRect();
+    // const { width, height } = svgElement.getBoundingClientRect();
+    const width = 928
+    const height = 500
 
     const svg = d3.select(svgElement)
       .attr("viewBox", [-width*SCALE, -height*SCALE, width*2*SCALE, height*2*SCALE])
