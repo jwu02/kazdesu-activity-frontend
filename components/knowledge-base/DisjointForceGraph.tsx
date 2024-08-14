@@ -23,7 +23,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links)
-        .distance(d=>30+Math.pow(d.value, 2))
+        .distance(d=>30+Math.pow(d.distance, 2))
         .id(d => d.id))
       .force("charge", d3.forceManyBody())
       .force("x", d3.forceX())
@@ -32,25 +32,27 @@ const DisjointForceGraph = ({ nodes, links }) => {
     const tooltip = d3.select(tooltipRef.current)
 
     const link = svg.append("g")
-      .classed("stroke-muted-foreground opacity-80", true)
+      .classed("stroke-node-secondary", true)
       .selectAll("line")
       .data(links)
       .enter().append("line")
-      .attr("stroke-width", d => Math.sqrt(d.value))
+      .attr("stroke-width", 1)
 
     const node = svg.append("g")
-      .classed("fill-muted-foreground hover:cursor-pointer", true)
+      .classed("fill-node-primary hover:cursor-pointer", true)
       .selectAll("circle")
       .data(nodes)
       .enter().append("circle")
       .attr("r", d => d.radius)
-      .on("mousemove", mousemove)
-      .on("mouseout", mouseout)
+      .classed("fill-node-secondary", d => d.isLeaf)
 
     node.call(d3.drag()
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
+      .on("mousemove", mousemove)
+      .on("mouseout", mouseout)
+      
 
     node.exit().remove()
 

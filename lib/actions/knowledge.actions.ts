@@ -12,7 +12,7 @@ const REPO_NAME = 'obsidian-backup'
 const BRANCH = 'master'
 
 const BASE_NODE_RADIUS = 5
-const BASE_LINK_STROKE_WIDTH = 2
+const BASE_LINK_DISTANCE = 2
 
 export const fetchPublicFilePaths = async () => {
   // https://stackoverflow.com/questions/25022016/get-all-file-names-from-a-github-repo-through-the-github-api
@@ -69,6 +69,7 @@ export const fetchKnowledgeGraphData = async () => {
       id: getFilenameFromPath(path),
       group: getDirectoryFromPath(path),
       radius: BASE_NODE_RADIUS,
+      isLeaf: true
       // content: htmlContent,
     }
     nodes.push(nodeObj)
@@ -82,7 +83,7 @@ export const fetchKnowledgeGraphData = async () => {
       links.push({
         source: getFilenameFromPath(path),
         target: link,
-        value: BASE_LINK_STROKE_WIDTH
+        distance: BASE_LINK_DISTANCE
       })
     })
   }
@@ -94,19 +95,34 @@ const processKnowledgeGraphData = async (nodes, links) => {
   // Filter out links with invalid relation targets, within public knowledge
   const validLinks = links.filter(link => 
     nodes.find(node => node.id === link.source) && nodes.find(node => node.id === link.target)
-  );
+  )
 
   // Compute distances between nodes in relationships
   validLinks.forEach(link => {
     const sourceNodeDir = nodes.find(node => node.id === link.source).group
     const targetNodeDir = nodes.find(node => node.id === link.target).group
 
-    link.value += computeDirectoryDistance(sourceNodeDir, targetNodeDir)
+    link.distance += computeDirectoryDistance(sourceNodeDir, targetNodeDir)
   })
 
   nodes.forEach(node => {
-    const numOutBoundLinks = validLinks.filter(link => link.source === node.id).length
-    node.radius += Math.sqrt(numOutBoundLinks)
+    const numConnectedNodes = (()=>{
+      const outBoundLinks = validLinks.filter(link => link.source === node.id)
+      const inBoundLinks = validLinks.filter(link => link.target === node.id)
+
+      // get the target nodes of out-bound links from current node
+      const outBoundTargets = outBoundLinks.map(link => link.target)
+      // get the sources of in-bound links to current node
+      const inBoundSources = inBoundLinks.map(link => link.source)
+
+      // use set to get unique connected nodes since relationships may be biredirectional
+      const connectedNodes = new Set(outBoundTargets.concat(inBoundSources))
+      return connectedNodes.size
+    })()
+
+    // my definition of a leaf node here is one with only 1 connected node
+    node.isLeaf = numConnectedNodes <= 1
+    node.radius += Math.sqrt(numConnectedNodes)
   })
 
   return { nodes: nodes, links: validLinks }

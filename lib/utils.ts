@@ -71,7 +71,6 @@ export const getTimeTicks = (now: number, filterWindow: number) => {
       throw new Error("Invalid timeframe supplied.")
   }
 
-
   // Create a time scale and generate ticks at regular intervals (every 2 hours by default) within the given time range
   const ticks = domain.ticks(tickInterval!).map(tick => tick.getTime())
 
@@ -120,14 +119,14 @@ export const extractMarkdownLinks = (markdown: string) => {
 }
 
 export const computeDirectoryDistance = (path1: string, path2: string) => {
-  const segments1 = path1.split('/').filter(Boolean);
-  const segments2 = path2.split('/').filter(Boolean);
+  const segments1 = path1.split('/').filter(Boolean)
+  const segments2 = path2.split('/').filter(Boolean)
 
-  let commonLength = 0;
+  let commonLength = 0
   while (commonLength < segments1.length && commonLength < segments2.length && segments1[commonLength] === segments2[commonLength]) {
-      commonLength++;
+      commonLength++
   }
 
-  const distance = (segments1.length - commonLength) + (segments2.length - commonLength);
-  return distance;
+  const distance = (segments1.length - commonLength) + (segments2.length - commonLength)
+  return distance
 }
