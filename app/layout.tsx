@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={robotoMono.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
