@@ -13,7 +13,7 @@ import { FaCircle, FaCircleDot } from 'react-icons/fa6'
 
 const Banner = () => {
   const intro = "hello i am tony"
-  const bio = "a cs graduate from the uk. i studied cs to build cool things, now i am jobless, maidenless and soon homeless"
+  const bio = "a cs graduate from the uk. studied cs to learn build cool things, now i am jobless, maidenless and soon homeless"
   const pfpImgSrc = "/pfp.jpg"
 
   return (

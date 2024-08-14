@@ -11,8 +11,6 @@ const GITHUB_API_BASE = 'https://api.github.com'
 const REPO_NAME = 'obsidian-backup'
 const BRANCH = 'master'
 
-const REVALIDATION_TIME = 3600 // 60x60 seconds
-
 const BASE_NODE_RADIUS = 5
 const BASE_LINK_STROKE_WIDTH = 2
 
@@ -22,8 +20,7 @@ export const fetchPublicFilePaths = async () => {
   const response = await fetch(url, {
     headers: {
       'Authorization': `token ${GITHUB_TOKEN}`
-    },
-    next: { revalidate: REVALIDATION_TIME }
+    }
   })
   const data = await response.json()
 
@@ -38,8 +35,7 @@ export const fetchFileContent = async (url: string) => {
     headers: {
       'Authorization': `token ${GITHUB_TOKEN}`,
       'Accept': 'application/vnd.github.v3.raw'
-    },
-    next: { revalidate: REVALIDATION_TIME }
+    }
   })
 
   if (res.status === 404) {
