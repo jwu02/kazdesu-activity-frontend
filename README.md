@@ -18,3 +18,5 @@
 
 ## Commands
 - `npm run dev` to run application
+- `npm run build` to build create an optimized production build
+- `npm start` to run the build, test before deployment

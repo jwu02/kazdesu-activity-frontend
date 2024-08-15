@@ -147,5 +147,9 @@
 }
 
 .connected-node {
-  @apply fill-node-primary
+  @apply fill-node-primary;
+}
+
+.muted-node {
+  @apply fill-muted;
 }
