@@ -60,7 +60,6 @@ const ActivitySummary = ({ activityType, total }: ActivitySummaryProps) => {
   return (
     <div className="flex gap-2 p-4 rounded-lg group"
       style={{
-        transition: '100ms ease-in-out',
         color: isHovered ? typeColour : ""
       }}
       onMouseEnter={()=>setIsHovered(true)}

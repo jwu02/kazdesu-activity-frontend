@@ -8,7 +8,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
   const svgRef = useRef<SVGSVGElement | null>(null)
 
   useEffect(() => {
-    const SCALE = 0.9
+    const SCALE = 1.2
 
     const svgElement = svgRef.current
 
@@ -28,8 +28,8 @@ const DisjointForceGraph = ({ nodes, links }) => {
     svg.call(zoom) // Apply the zoom behavior to the SVG container
 
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).distance(80).id(d => d.id))
-      .force("charge", d3.forceManyBody().strength(-50))
+      .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+      .force("charge", d3.forceManyBody().strength(-100))
       .force("collide", d3.forceCollide().radius(15))
       .force("x", d3.forceX())
       .force("y", d3.forceY())
@@ -94,56 +94,39 @@ const DisjointForceGraph = ({ nodes, links }) => {
     })
 
     function zoomed(event) {
-      g.attr("transform", event.transform);
+      g.attr("transform", event.transform)
     }
 
     function mouseover(event, d) {
+      // Make increase circle radius slightly
+      d3.select(event.srcElement)
+        .attr("r", event.srcElement.__data__.radius+2)
+
+      // Highlight connected nodes
+      const connectedNodeIds = new Set(d.connectedNodes)
+      connectedNodeIds.add(d.id); // Add the hovered node itself to the set
+
+      // Adjust fill color based on connection status
+      node
+        .classed("connected-node", d=>connectedNodeIds.has(d.id))
+        .classed("fill-accent", d=>!connectedNodeIds.has(d.id))
+        .raise()
+
       // Show the text of the hovered node
       nodeText
         .attr("visibility", node => node.id === d.id ? "visible" : "hidden")
         .raise()
-
-      // // Get the IDs of connected nodes
-      // const connectedNodeIds = new Set(d.connectedNodes)
-      // // connectedNodeIds.add(d.id); // Add the hovered node itself to the set
-
-      // // Adjust fill color based on connection status
-      // node
-      //   .attr("class", (d) => {
-      //     let classList = d3.select(this).attr("class")
-      //     if (connectedNodeIds.has(d.id)) {
-      //       return classList += ' connected-node'
-      //     } else {
-      //       return classList += ' fill-muted';
-      //     }
-      //   })
-
-      d3.select(event.srcElement)
-        .attr("r", event.srcElement.__data__.radius+2)
     }
 
-    function mouseout(event, d) {
+    function mouseout(event) {
       d3.select(event.srcElement)
       .attr("r", event.srcElement.__data__.radius)
 
       // Hide all text elements when not hovering
-      nodeText.attr("visibility", "hidden");
+      nodeText.attr("visibility", "hidden")
 
-      // // Get the IDs of connected nodes
-      // const connectedNodeIds = new Set(d.connectedNodes);
-
-      // node.classed("fill-muted", false)
-      // node.classed("connected-node", false)
-      // node.classed("fill-red-600", true)
-      // // node
-      // //   .attr("class", (d) => {
-      // //     let classList = d3.select(this).attr("class")
-      // //     if (connectedNodeIds.has(d.id)) {
-      // //       return classList += ' fill-node-primary'
-      // //     } else {
-      // //       return classList += ' fill-muted';
-      // //     }
-      // //   })
+      node.classed("connected-node", false)
+      node.classed("fill-accent", false)
     }
 
     function dragstarted(event) {

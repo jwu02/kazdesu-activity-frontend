@@ -145,3 +145,7 @@
   gap: 0 1rem; /* Tailwind equivalent of gap-4 */
   align-items: center;
 }
+
+.connected-node {
+  @apply fill-node-primary
+}
