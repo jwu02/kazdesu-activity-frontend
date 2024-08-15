@@ -6,56 +6,69 @@ import * as d3 from 'd3'
 // https://observablehq.com/@d3/disjoint-force-directed-graph/2?intent=fork
 const DisjointForceGraph = ({ nodes, links }) => {
   const svgRef = useRef<SVGSVGElement | null>(null)
-  const tooltipRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const SCALE = 0.7
+    const SCALE = 0.9
 
     const svgElement = svgRef.current
 
-    // const { width, height } = svgElement.getBoundingClientRect();
     const width = 928
     const height = 500
 
     const svg = d3.select(svgElement)
       .attr("viewBox", [-width*SCALE, -height*SCALE, width*2*SCALE, height*2*SCALE])
-      .classed("w-full h-auto", true)
+      .classed("w-full h-auto active:cursor-grabbing", true)
+
+    const g = svg.append("g") // Create a group to hold the graph elements
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 2]) // Set zoom scale limits
+      .on("zoom", zoomed)
+
+    svg.call(zoom) // Apply the zoom behavior to the SVG container
 
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links)
-        .distance(d=>30+Math.pow(d.distance, 2))
-        .id(d => d.id))
-      .force("charge", d3.forceManyBody())
+      .force("link", d3.forceLink(links).distance(80).id(d => d.id))
+      .force("charge", d3.forceManyBody().strength(-50))
+      .force("collide", d3.forceCollide().radius(15))
       .force("x", d3.forceX())
       .force("y", d3.forceY())
-    
-    const tooltip = d3.select(tooltipRef.current)
 
-    const link = svg.append("g")
-      .classed("stroke-node-secondary", true)
+    const link = g
       .selectAll("line")
       .data(links)
       .enter().append("line")
       .attr("stroke-width", 1)
+      .classed("stroke-node-secondary", true)
 
-    const node = svg.append("g")
-      .classed("fill-node-primary hover:cursor-pointer", true)
+    const node = g
       .selectAll("circle")
       .data(nodes)
       .enter().append("circle")
       .attr("r", d => d.radius)
+      .classed("hover:cursor-pointer", true)
+      .classed("fill-node-primary", d => !d.isLeaf)
       .classed("fill-node-secondary", d => d.isLeaf)
 
     node.call(d3.drag()
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-      .on("mousemove", mousemove)
+      .on("mouseover", mouseover)
       .on("mouseout", mouseout)
+
+    // https://stackoverflow.com/questions/11102795/d3-node-labeling
+    // Add text elements for each node
+    const nodeText = g
+      .attr("class", "node-text")
+      .selectAll(".node-text")
+      .data(nodes)
+      .enter().append("text")
+      .attr("visibility", "hidden")
+      .style("fill", "hsl(var(--primary))")
+      .classed("text-3xl", true)
+      .text(d => d.id)
       
-
-    node.exit().remove()
-
     simulation.on("tick", () => {
       link
         .attr("x1", d => d.source.x)
@@ -66,25 +79,71 @@ const DisjointForceGraph = ({ nodes, links }) => {
       node
         .attr("cx", d => d.x)
         .attr("cy", d => d.y)
+      
+      nodeText.each(function(d) {
+          // Get text width for centering text horizontally
+          const bbox = this.getBBox()
+          const textWidth = bbox.width
+
+          d3.select(this)
+            .attr("x", d.x)
+            .attr("y", d.y)
+            .attr("dx", -textWidth / 2)
+            .attr("dy", -15-d.radius)
+        })
     })
 
-    function mousemove (event) {
-      d3.select(event.srcElement)
-        .attr("r", event.srcElement.__data__.radius+2)
-        // .raise()
-
-      tooltip.transition().duration(3000)
-      tooltip.html(event.srcElement.__data__.id)
-        .style("left", `${event.pageX}px`)
-        .style("top", `${event.pageY-25}px`)
-        .classed("hidden", false)
+    function zoomed(event) {
+      g.attr("transform", event.transform);
     }
 
-    function mouseout (event) {
+    function mouseover(event, d) {
+      // Show the text of the hovered node
+      nodeText
+        .attr("visibility", node => node.id === d.id ? "visible" : "hidden")
+        .raise()
+
+      // // Get the IDs of connected nodes
+      // const connectedNodeIds = new Set(d.connectedNodes)
+      // // connectedNodeIds.add(d.id); // Add the hovered node itself to the set
+
+      // // Adjust fill color based on connection status
+      // node
+      //   .attr("class", (d) => {
+      //     let classList = d3.select(this).attr("class")
+      //     if (connectedNodeIds.has(d.id)) {
+      //       return classList += ' connected-node'
+      //     } else {
+      //       return classList += ' fill-muted';
+      //     }
+      //   })
+
+      d3.select(event.srcElement)
+        .attr("r", event.srcElement.__data__.radius+2)
+    }
+
+    function mouseout(event, d) {
       d3.select(event.srcElement)
       .attr("r", event.srcElement.__data__.radius)
 
-      tooltip.classed("hidden", true)
+      // Hide all text elements when not hovering
+      nodeText.attr("visibility", "hidden");
+
+      // // Get the IDs of connected nodes
+      // const connectedNodeIds = new Set(d.connectedNodes);
+
+      // node.classed("fill-muted", false)
+      // node.classed("connected-node", false)
+      // node.classed("fill-red-600", true)
+      // // node
+      // //   .attr("class", (d) => {
+      // //     let classList = d3.select(this).attr("class")
+      // //     if (connectedNodeIds.has(d.id)) {
+      // //       return classList += ' fill-node-primary'
+      // //     } else {
+      // //       return classList += ' fill-muted';
+      // //     }
+      // //   })
     }
 
     function dragstarted(event) {
@@ -96,8 +155,6 @@ const DisjointForceGraph = ({ nodes, links }) => {
     function dragged(event) {
       event.subject.fx = event.x
       event.subject.fy = event.y
-
-      tooltip.classed("hidden", true)
     }
 
     function dragended(event) {
@@ -115,7 +172,6 @@ const DisjointForceGraph = ({ nodes, links }) => {
   return (
     <>
       <svg ref={svgRef} />
-      <div ref={tooltipRef} className="hidden absolute translate-x-[-50%]" />
     </>
   );
 };

@@ -2,7 +2,7 @@
 
 // import { remark } from 'remark'
 // import html from 'remark-html'
-import { computeDirectoryDistance, extractMarkdownLinks, getDirectoryFromPath, getFilenameFromPath } from '@/lib/utils'
+import { extractMarkdownLinks, getDirectoryFromPath, getFilenameFromPath } from '@/lib/utils'
 
 const GITHUB_USERNAME = process.env.GITHUB_USERNAME
 const GITHUB_TOKEN = process.env.GITHUB_ACCESS_TOKEN_OBSIDIAN_BACKUP
@@ -12,7 +12,6 @@ const REPO_NAME = 'obsidian-backup'
 const BRANCH = 'master'
 
 const BASE_NODE_RADIUS = 5
-const BASE_LINK_DISTANCE = 2
 
 export const fetchPublicFilePaths = async () => {
   // https://stackoverflow.com/questions/25022016/get-all-file-names-from-a-github-repo-through-the-github-api
@@ -69,7 +68,8 @@ export const fetchKnowledgeGraphData = async () => {
       id: getFilenameFromPath(path),
       group: getDirectoryFromPath(path),
       radius: BASE_NODE_RADIUS,
-      isLeaf: true
+      isLeaf: true,
+      connectedNodes: []
       // content: htmlContent,
     }
     nodes.push(nodeObj)
@@ -82,8 +82,7 @@ export const fetchKnowledgeGraphData = async () => {
       // Add a link from the current file to each of the extracted markdown links
       links.push({
         source: getFilenameFromPath(path),
-        target: link,
-        distance: BASE_LINK_DISTANCE
+        target: link
       })
     })
   }
@@ -97,32 +96,23 @@ const processKnowledgeGraphData = async (nodes, links) => {
     nodes.find(node => node.id === link.source) && nodes.find(node => node.id === link.target)
   )
 
-  // Compute distances between nodes in relationships
-  validLinks.forEach(link => {
-    const sourceNodeDir = nodes.find(node => node.id === link.source).group
-    const targetNodeDir = nodes.find(node => node.id === link.target).group
-
-    link.distance += computeDirectoryDistance(sourceNodeDir, targetNodeDir)
-  })
-
   nodes.forEach(node => {
-    const numConnectedNodes = (()=>{
-      const outBoundLinks = validLinks.filter(link => link.source === node.id)
-      const inBoundLinks = validLinks.filter(link => link.target === node.id)
+    const outBoundLinks = validLinks.filter(link => link.source === node.id)
+    const inBoundLinks = validLinks.filter(link => link.target === node.id)
 
-      // get the target nodes of out-bound links from current node
-      const outBoundTargets = outBoundLinks.map(link => link.target)
-      // get the sources of in-bound links to current node
-      const inBoundSources = inBoundLinks.map(link => link.source)
+    // Get the target nodes of out-bound links from current node
+    const outBoundTargets = outBoundLinks.map(link => link.target)
+    // Get the sources of in-bound links to current node
+    const inBoundSources = inBoundLinks.map(link => link.source)
 
-      // use set to get unique connected nodes since relationships may be biredirectional
-      const connectedNodes = new Set(outBoundTargets.concat(inBoundSources))
-      return connectedNodes.size
-    })()
+    // Use set to get unique connected nodes since relationships may be biredirectional
+    const connectedNodesSet = new Set(outBoundTargets.concat(inBoundSources))
+    const numConnectedNodes = connectedNodesSet.size
 
-    // my definition of a leaf node here is one with only 1 connected node
+    // My definition of a leaf node here is one with only 1 connected node
     node.isLeaf = numConnectedNodes <= 1
-    node.radius += Math.sqrt(numConnectedNodes)
+    node.radius += Math.pow(numConnectedNodes, 0.7)
+    node.connectedNodes = Array.from(connectedNodesSet)
   })
 
   return { nodes: nodes, links: validLinks }
