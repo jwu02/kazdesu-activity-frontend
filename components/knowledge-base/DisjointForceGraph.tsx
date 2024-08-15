@@ -94,6 +94,10 @@ const DisjointForceGraph = ({ nodes, links }) => {
         // .style("fill", d=>`hsl(var(--${connectedNodeIds.has(d.id) ? 
         //   "node-primary" : "muted"}))`)
         .raise()
+      
+      link
+        .classed("connected-link", l=>(l.source.id===d.id || l.target.id===d.id))
+        .classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
 
       nodeLabel.transition().duration(3000)
       nodeLabel.classed("hidden", false)
@@ -106,6 +110,8 @@ const DisjointForceGraph = ({ nodes, links }) => {
       node
         .classed("connected-node", false)
         .classed("muted-node", false)
+      link.classed("connected-link", false)
+        .classed("muted-link", false)
       
       // Hide text element when not hovering
       nodeLabel.classed("hidden", true)

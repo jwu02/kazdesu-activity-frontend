@@ -153,3 +153,11 @@
 .muted-node {
   @apply fill-muted;
 }
+
+.connected-link {
+  @apply stroke-node-primary;
+}
+
+.muted-link {
+  @apply stroke-muted;
+}
