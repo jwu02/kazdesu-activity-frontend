@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as d3 from 'd3'
+import { PiLockKeyFill, PiLockKeyOpenFill } from 'react-icons/pi';
 
 // https://observablehq.com/@d3/disjoint-force-directed-graph/2?intent=fork
-const DisjointForceGraph = ({ nodes, links }) => {
+const DisjointForceGraph = ({ nodes, links, lockZoom }) => {
   const svgRef = useRef<SVGSVGElement | null>(null)
   const nodeLabelRef = useRef<HTMLDivElement | null>(null)
 
@@ -27,7 +28,11 @@ const DisjointForceGraph = ({ nodes, links }) => {
       .scaleExtent([0.5, 3]) // Set zoom scale limits
       .on("zoom", zoomed)
 
-    svg.call(zoom) // Apply the zoom behavior to the SVG container
+    if (!lockZoom) {
+      svg.call(zoom); // Apply the zoom behavior to the SVG container
+  } else {
+      svg.on(".zoom", null); // Remove the zoom behavior
+  }
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(100))
@@ -79,24 +84,25 @@ const DisjointForceGraph = ({ nodes, links }) => {
     }
 
     function mouseover(event, d) {
+      // if (dragActive) return
+
       // Make increase circle radius slightly
       d3.select(event.srcElement)
         .attr("r", event.srcElement.__data__.radius+2)
 
-      // Highlight connected links/edges
+      const connectedNodeIds = new Set(d.connectedNodes)
+      connectedNodeIds.add(d.id); // Add the hovered node itself to the set
+
+      link.classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))      
+      node.classed("muted-node", d=>!connectedNodeIds.has(d.id)).raise()
+
+      // Highlight connected edges and nodes
       svg.selectAll("line").filter(l=>(l.source.id===d.id || l.target.id===d.id))
         .classed("connected-link", true)
         .raise()
-      link.classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
-
-      // Highlight connected nodes
-      const connectedNodeIds = new Set(d.connectedNodes)
-      connectedNodeIds.add(d.id); // Add the hovered node itself to the set
-      
       svg.selectAll("circle").filter(d=>connectedNodeIds.has(d.id))
         .classed("connected-node", true)
         .raise()
-      node.classed("muted-node", d=>!connectedNodeIds.has(d.id))
 
       nodeLabel.transition().duration(3000)
       nodeLabel.classed("hidden", false)
@@ -104,7 +110,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
 
     function mouseout(event) {
       d3.select(event.srcElement)
-      .attr("r", event.srcElement.__data__.radius)
+        .attr("r", event.srcElement.__data__.radius)
 
       node
         .classed("connected-node", false)
@@ -118,8 +124,8 @@ const DisjointForceGraph = ({ nodes, links }) => {
 
     function mousemove(event) {
       nodeLabel.html(event.srcElement.__data__.id)
-        .style("left", `${event.pageX}px`)
-        .style("top", `${event.pageY-25}px`)
+        .style("left", `${event.pageX-150}px`)
+        .style("top", `${event.pageY-260}px`)
     }
 
     function dragstarted(event) {
@@ -131,7 +137,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
     function dragged(event) {
       event.subject.fx = event.x
       event.subject.fy = event.y
-      // nodeLabel.classed("hidden", true)
+      
       try {
         mousemove(event.sourceEvent)
       } catch(e) {}
@@ -145,14 +151,15 @@ const DisjointForceGraph = ({ nodes, links }) => {
 
     return () => {
       simulation.stop()
+      svg.on(".zoom", null) // Clean up the zoom listener on unmount
       svg.selectAll("*").remove()
     }
-  }, [nodes, links])
+  }, [nodes, links, lockZoom])
 
   return (
     <>
+    <div ref={nodeLabelRef} className="hidden absolute translate-x-[-50%]" />
       <svg ref={svgRef} />
-      <div ref={nodeLabelRef} className="hidden absolute translate-x-[-50%]" />
     </>
   );
 };
