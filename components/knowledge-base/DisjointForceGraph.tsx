@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
-import { PiLockKeyFill, PiLockKeyOpenFill } from 'react-icons/pi';
 
 // https://observablehq.com/@d3/disjoint-force-directed-graph/2?intent=fork
-const DisjointForceGraph = ({ nodes, links, lockZoom }) => {
+const DisjointForceGraph = ({ nodes, links }) => {
   const svgRef = useRef<SVGSVGElement | null>(null)
   const nodeLabelRef = useRef<HTMLDivElement | null>(null)
 
@@ -28,11 +27,7 @@ const DisjointForceGraph = ({ nodes, links, lockZoom }) => {
       .scaleExtent([0.5, 3]) // Set zoom scale limits
       .on("zoom", zoomed)
 
-    if (!lockZoom) {
-      svg.call(zoom); // Apply the zoom behavior to the SVG container
-  } else {
-      svg.on(".zoom", null); // Remove the zoom behavior
-  }
+    svg.call(zoom); // Apply the zoom behavior to the SVG container
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(100))
@@ -124,8 +119,8 @@ const DisjointForceGraph = ({ nodes, links, lockZoom }) => {
 
     function mousemove(event) {
       nodeLabel.html(event.srcElement.__data__.id)
-        .style("left", `${event.pageX-150}px`)
-        .style("top", `${event.pageY-260}px`)
+        .style("left", `${event.pageX}px`)
+        .style("top", `${event.pageY-30}px`)
     }
 
     function dragstarted(event) {
@@ -154,11 +149,11 @@ const DisjointForceGraph = ({ nodes, links, lockZoom }) => {
       svg.on(".zoom", null) // Clean up the zoom listener on unmount
       svg.selectAll("*").remove()
     }
-  }, [nodes, links, lockZoom])
+  }, [nodes, links])
 
   return (
     <>
-    <div ref={nodeLabelRef} className="hidden absolute translate-x-[-50%]" />
+      <div ref={nodeLabelRef} className="hidden absolute translate-x-[-50%]" />
       <svg ref={svgRef} />
     </>
   );
