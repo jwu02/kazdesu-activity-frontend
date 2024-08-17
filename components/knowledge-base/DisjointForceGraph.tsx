@@ -24,7 +24,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
     const g = svg.append("g") // Create a group to hold the graph elements
 
     const zoom = d3.zoom()
-      .scaleExtent([0.5, 2]) // Set zoom scale limits
+      .scaleExtent([0.5, 3]) // Set zoom scale limits
       .on("zoom", zoomed)
 
     svg.call(zoom) // Apply the zoom behavior to the SVG container
@@ -83,21 +83,20 @@ const DisjointForceGraph = ({ nodes, links }) => {
       d3.select(event.srcElement)
         .attr("r", event.srcElement.__data__.radius+2)
 
+      // Highlight connected links/edges
+      svg.selectAll("line").filter(l=>(l.source.id===d.id || l.target.id===d.id))
+        .classed("connected-link", true)
+        .raise()
+      link.classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
+
       // Highlight connected nodes
       const connectedNodeIds = new Set(d.connectedNodes)
       connectedNodeIds.add(d.id); // Add the hovered node itself to the set
-
-      // Adjust fill color based on connection status
-      node
-        .classed("connected-node", d=>connectedNodeIds.has(d.id))
-        .classed("muted-node", d=>!connectedNodeIds.has(d.id))
-        // .style("fill", d=>`hsl(var(--${connectedNodeIds.has(d.id) ? 
-        //   "node-primary" : "muted"}))`)
-        .raise()
       
-      link
-        .classed("connected-link", l=>(l.source.id===d.id || l.target.id===d.id))
-        .classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
+      svg.selectAll("circle").filter(d=>connectedNodeIds.has(d.id))
+        .classed("connected-node", true)
+        .raise()
+      node.classed("muted-node", d=>!connectedNodeIds.has(d.id))
 
       nodeLabel.transition().duration(3000)
       nodeLabel.classed("hidden", false)
