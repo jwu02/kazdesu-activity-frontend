@@ -10,6 +10,7 @@ const GITHUB_API_BASE = 'https://api.github.com'
 
 const REPO_NAME = 'obsidian-backup'
 const BRANCH = 'master'
+const PUBLIC_NOTES_DIR = 'CardsPublic/'
 
 const BASE_NODE_RADIUS = 5
 
@@ -25,7 +26,10 @@ export const fetchPublicFilePaths = async () => {
 
   // Extract file paths
   return data.tree
-    .filter(item => item.type === 'blob' && item.path.startsWith('CardsPublic/') && item.path.endsWith('.md')) // Filter for Markdown files
+    .filter(item => // Filter for Markdown files
+      item.type === 'blob' && 
+      item.path.startsWith(PUBLIC_NOTES_DIR) && 
+      item.path.endsWith('.md'))
     .map(item => item.path)
 }
 
@@ -116,4 +120,43 @@ const processKnowledgeGraphData = async (nodes, links) => {
   })
 
   return { nodes: nodes, links: validLinks }
+}
+
+export const fetchXFilesFromLastYCommits = async (filesLimit, commitsLimit) => {
+  // https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#get-a-commit
+  try {
+    // Fetch commits
+    const commitsResponse = await fetch(
+      `${GITHUB_API_BASE}/repos/${GITHUB_USERNAME}/${REPO_NAME}/commits/heads/master?per_page=${commitsLimit}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: 'application/vnd.github+json'
+        },
+      }
+    )
+
+    const data = await commitsResponse.json()
+    const publicNotes = data.files.filter(item=>
+      item.filename.startsWith(PUBLIC_NOTES_DIR) && 
+      item.filename.endsWith('.md')
+    )
+
+    const newNotes = []
+
+    for (const file of publicNotes) {
+      // https://stackoverflow.com/questions/10804476/what-are-the-status-types-for-files-in-the-github-api-v3
+      if (newNotes.length < filesLimit) {
+          newNotes.push(getFilenameFromPath(file.filename))
+      }
+
+      // Stop if we have 20 unique file paths
+      if (newNotes.length >= filesLimit) break
+    }
+
+    return Array.from(newNotes)
+  } catch (error) {
+    console.error('Error fetching commit data:', error)
+    return []
+  }
 }
