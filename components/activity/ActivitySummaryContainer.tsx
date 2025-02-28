@@ -17,9 +17,7 @@ const ActivitySummaryContainer = ({ activityData }: ActivitySummaryContainerProp
             key={activityTypeKey}
             activityType={activityTypeKey as ActivityTypeKey}
             total={
-              activityTypeKey === 'mouseMovements'
-                ? activityData[activityTypeKey].reduce((t, obj) => t + obj.amount, 0)
-                : activityData[activityTypeKey].reduce((t, obj) => t + obj.count, 0)
+              activityData[activityTypeKey].reduce((t, obj) => t + obj.count, 0)
             }
           />
         ))

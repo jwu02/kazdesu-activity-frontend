@@ -25,7 +25,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
       .scaleExtent([0.5, 3]) // Set zoom scale limits
       .on("zoom", zoomed)
 
-    svg.call(zoom); // Apply the zoom behavior to the SVG container
+    svg.call(zoom) // Apply the zoom behavior to the SVG container
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(120))
@@ -54,7 +54,7 @@ const DisjointForceGraph = ({ nodes, links }) => {
     // Add text elements for each node
     const nodeText = g
       .attr("class", "node-label")
-      .selectAll(".node-text")
+      .selectAll(".node-label")
       .data(nodes)
       .enter().append("text")
       .attr("visibility", "hidden")
@@ -99,14 +99,19 @@ const DisjointForceGraph = ({ nodes, links }) => {
       const connectedNodeIds = new Set(d.connectedNodes)
       connectedNodeIds.add(d.id); // Add the hovered node itself to the set
 
-      link.classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
-      node.classed("muted-node", d=>!connectedNodeIds.has(d.id)).raise()
+      link
+        .classed("muted-link", l=>!(l.source.id===d.id || l.target.id===d.id))
+      node
+        .classed("muted-node", d=>!connectedNodeIds.has(d.id))
+        .raise()
 
       // Highlight connected edges and nodes
-      svg.selectAll("line").filter(l=>(l.source.id===d.id || l.target.id===d.id))
+      svg.selectAll("line")
+        .filter(l=>(l.source.id===d.id || l.target.id===d.id))
         .classed("connected-link", true)
         .raise()
-      svg.selectAll("circle").filter(d=>connectedNodeIds.has(d.id))
+      svg.selectAll("circle")
+        .filter(d=>connectedNodeIds.has(d.id))
         .classed("connected-node", true)
         .raise()
 
@@ -126,10 +131,12 @@ const DisjointForceGraph = ({ nodes, links }) => {
     }
 
     function mouseout(event) {
-      d3.select(event.srcElement)
+      d3
+        .select(event.srcElement)
         .attr("r", event.srcElement.__data__.radius)
 
-      link.classed("connected-link", false)
+      link
+        .classed("connected-link", false)
         .classed("muted-link", false)
       node
         .classed("connected-node", false)

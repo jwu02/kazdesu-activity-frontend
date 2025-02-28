@@ -5,12 +5,6 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { FaCircle, FaCircleDot } from 'react-icons/fa6'
 
-// import dynamic from 'next/dynamic';
-
-// const AsciiArtDisplay = dynamic(() => import('@/components/AsciiArtDisplay'), {
-//   ssr: false, // This ensures the component is only rendered on the client side
-// });
-
 const Banner = () => {
   const intro = "hello i am tony"
   const bio = "a cs graduate from the uk. studied cs to learn build cool things, now i am jobless, maidenless and soon homeless"
@@ -25,8 +19,6 @@ const Banner = () => {
         width={150}
         height={150}
       />
-
-      {/* <AsciiArtDisplay imageUrl={pfpImgSrc} /> */}
 
       <div className="flex flex-col justify-between gap-2">
         <div className="mx-auto sm:mx-0">

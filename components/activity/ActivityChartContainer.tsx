@@ -54,7 +54,7 @@ const ActivityChartContainer: React.FC<ActivityChartContainerProps> = ({ activit
           'Mouse Movements': 0
         }
         
-        intervalMapping[timeInterval][data.type] += 'count' in data ? data.count : Math.round(data.amount)
+        intervalMapping[timeInterval][data.type] += data.type !== "Mouse Movements" ? data.count : Math.round(data.count)
       }
     })
   })

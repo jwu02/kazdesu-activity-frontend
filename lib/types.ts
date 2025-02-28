@@ -18,7 +18,7 @@ export interface RightClick {
 
 export interface MouseMovement {
   id: number;
-  amount: number;
+  count: number;
   createdAt: Date;
 }
 
