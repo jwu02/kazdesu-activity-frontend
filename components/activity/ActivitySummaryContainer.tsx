@@ -33,7 +33,7 @@ const ActivitySummary = ({ activityType, total }: ActivitySummaryProps) => {
   const totalFormatter = activityType==="mouseMovements" ? formatMeasurement : formatCount
   
   const [isHovered, setIsHovered] = useState(false)
-  const Icon = isHovered ? activityTypeMapping[activityType].iconHover : activityTypeMapping[activityType].icon
+  const Icon = activityTypeMapping[activityType].icon
   const typeColour = activityTypeMapping[activityType].colour
 
   const ref = useRef<HTMLSpanElement>(null)

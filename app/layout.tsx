@@ -11,8 +11,8 @@ const robotoMono = Roboto_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "kazdesu",
-  description: "Solo Leveling Inspired.",
+  title: "jwoo",
+  description: "Personal Website for jwoo",
 }
 
 export default function RootLayout({

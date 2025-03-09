@@ -57,6 +57,9 @@ const config = {
           primary: "hsl(var(--node-primary))",
           secondary: "hsl(var(--node-secondary))",
         },
+        theme: {
+          sololv: "hsl(var(--theme-sololv))",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

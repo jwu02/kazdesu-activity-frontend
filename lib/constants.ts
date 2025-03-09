@@ -16,7 +16,6 @@ export const activityTypeMapping = {
     linearGradientId: 'colorKp',
     colour: '#4477aa',
     icon: PiKeyboardBold,
-    iconHover: PiKeyboardFill
   }, 
   leftClicks: {
     endPoint: 'left-clicks',
@@ -24,8 +23,7 @@ export const activityTypeMapping = {
     dataKey: 'Left Clicks',
     linearGradientId: 'colorLc',
     colour: '#228833',
-    icon: PiMouseLeftClickBold,
-    iconHover: PiMouseLeftClickFill
+    icon: PiMouseLeftClickFill
   }, 
   rightClicks: {
     endPoint: 'right-clicks',
@@ -33,8 +31,7 @@ export const activityTypeMapping = {
     dataKey: 'Right Clicks',
     linearGradientId: 'colorRc',
     colour: '#ccbb44',
-    icon: PiMouseRightClickBold, 
-    iconHover: PiMouseRightClickFill
+    icon: PiMouseRightClickFill
   }, 
   mouseMovements: {
     endPoint: 'mouse-movements',
@@ -42,8 +39,7 @@ export const activityTypeMapping = {
     dataKey: 'Mouse Movements',
     linearGradientId: 'colorMm',
     colour: '#aa3377',
-    icon: LuRat,
-    iconHover: LuRat
+    icon: LuRat
   }
 }
 

@@ -1,4 +1,15 @@
+# kazdesu Activity Frontend NextJS
+## Commands
+- `npm run dev` to run application
+- `npm run build` to build create an optimized production build
+- `npm start` to run the build, test before deployment
+
 ## TODOs
+- [] blog page
+- [] rich text support
+    - [] ensure span elements with rich text has consistent stlyes (font-size...) with parent elements such as h1, h2
+    - https://hygraph.com/blog/styling-rich-text-tailwindcss
+
 - [] data caching
     - activity data revalidate every 5 mins
     - knowledge data revalidate every hour
@@ -15,8 +26,3 @@
 - [x] fetch all data at once
 - [x] update data timeframe
 - [x] periodically update chart
-
-## Commands
-- `npm run dev` to run application
-- `npm run build` to build create an optimized production build
-- `npm start` to run the build, test before deployment

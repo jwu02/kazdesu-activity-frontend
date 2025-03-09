@@ -4,6 +4,8 @@ import { getPCStatus } from '@/lib/actions/activity.actions'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { FaCircle, FaCircleDot } from 'react-icons/fa6'
+import Navbar from './Navbar'
+import SocialsContainer from './SocialsContainer'
 
 const Banner = () => {
   const intro = "hello i am tony"
@@ -11,7 +13,7 @@ const Banner = () => {
   const pfpImgSrc = "/pfp.jpg"
 
   return (
-    <div className="flex flex-col sm:flex-row gap-5">
+    <div className="flex flex-col sm:flex-row gap-10">
       <Image
         className="rounded-lg mx-auto sm:mx-0"
         alt="profile picture"
@@ -20,12 +22,19 @@ const Banner = () => {
         height={150}
       />
 
-      <div className="flex flex-col justify-between gap-2">
+      <div className="flex flex-col justify-between">
         <div className="mx-auto sm:mx-0">
           <StatusLabel />
         </div>
+        
         <div className="text-lg">{intro}</div>
-        <div className="text-base">{bio}</div>
+
+        <div className="flex gap-2">
+          <SocialsContainer />
+        </div>
+
+        {/* <div className="text-base">{bio}</div> */}
+        <Navbar />
       </div>
     </div>
   )
@@ -60,7 +69,7 @@ const StatusLabel = () => {
   return (
     // why doesnt inline-block work?
     <div className={`inline-flex items-center gap-2 ${statusLabelColor}`}>
-      <span className={`w-auto ${online ? "pulse-icon" : "beat-icon"}`}>
+      <span className={`w-auto ${online && "pulse-icon"}`}>
         {online ? onlineIcon : offlineIcon}
       </span>
 

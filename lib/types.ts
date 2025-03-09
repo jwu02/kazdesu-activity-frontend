@@ -1,3 +1,5 @@
+import { BlockObjectResponse, PartialBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+
 export interface KeyPress {
   id: number;
   count: number;
@@ -36,3 +38,5 @@ export type ActivityDataStateType = {
 }
 
 export type ActivityTypeKey = 'keyPresses' | 'leftClicks' | 'rightClicks' | 'mouseMovements'
+
+export type BlockResponse = any//PartialBlockObjectResponse | BlockObjectResponse

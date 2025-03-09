@@ -1,5 +1,12 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import BulletedListItem from "@/components/notion/BulletedListItem"
+import Code from "@/components/notion/Code"
+import Heading1 from "@/components/notion/Heading1"
+import Heading2 from "@/components/notion/Heading2"
+import Image from "@/components/notion/Image"
+import Paragraph from "@/components/notion/Paragraph"
+import Toggle from "@/components/notion/Toggle"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -9,6 +16,7 @@ import { PcActivity } from "@/lib/types"
 import { MS_IN_DAY } from "@/lib/constants"
 
 import * as d3 from "d3"
+import { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 
 export const filterActivityData = (x: number, data: PcActivity[]): PcActivity[] => {
   // x should be given in milliseconds
@@ -116,4 +124,20 @@ export const extractMarkdownLinks = (markdown: string) => {
   }
 
   return matches
+}
+
+
+export function getPlainTextFromRichTextArray(richTextArray: RichTextItemResponse[]) {
+  return richTextArray.map((text) => text.plain_text).join("")
+}
+
+// component map
+export const blockTypeToComponentMap = {
+  'bulleted_list_item': BulletedListItem,
+  'code': Code,
+  'heading_1': Heading1,
+  'heading_2': Heading2,
+  'image': Image,
+  'paragraph': Paragraph,
+  'toggle': Toggle,
 }
