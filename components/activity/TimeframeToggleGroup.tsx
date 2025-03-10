@@ -1,7 +1,10 @@
-import React from 'react'
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { filterWindowMapping, MS_IN_DAY } from '@/lib/constants'
-import { TimeframeToggleGroupProps } from '@/lib/componentProps'
+
+interface TimeframeToggleGroupProps {
+  setFilterWindow: (filterWindow: number) => void;
+}
+
 
 const TimeframeToggleGroup: React.FC<TimeframeToggleGroupProps> = ({ setFilterWindow }) => {
   return (

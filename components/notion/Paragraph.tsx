@@ -3,7 +3,7 @@
 import RichText from './RichText'
 import { ParagraphBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
-interface ParagraphProps {
+export interface ParagraphProps {
   block: ParagraphBlockObjectResponse
 }
 

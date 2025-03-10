@@ -1,16 +1,24 @@
-import React from 'react'
-
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from "recharts"
 import { getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/lib/utils"
-import { ActivityChartProps } from "@/lib/componentProps"
 import { activityTypeMapping, MS_IN_DAY } from "@/lib/constants"
+import { FaSquare } from 'react-icons/fa6'
+import React, { useState } from "react"
 
-const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, now }) => {
+export interface ActivityChartProps {
+  chartData: Array<{
+    name: number;
+    [key: string]: number;
+  }>;
+  filterWindow: number;
+  now: number;
+}
+
+const ActivityChart = ({ chartData, filterWindow, now }: ActivityChartProps) => {
   const timeTicks = getTimeTicks(now, filterWindow)
   const timeTickFormatter = filterWindow > MS_IN_DAY ? timeTickDateFormatter : timeTickHourFormatter
-  const tickColor = 'hsl(var(--foreground))'
+  const tickColor = 'var(--foreground)'
 
-  const [hiddenSeries, setHiddenSeries] = React.useState<Array<string>>([])
+  const [hiddenSeries, setHiddenSeries] = useState<Array<string>>([])
 
   return (
     <ResponsiveContainer className="group" width="100%" height={300}>
@@ -81,44 +89,59 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ chartData, filterWindow, 
 
 export default ActivityChart
 
-import { CustomTooltipProps } from "@/lib/componentProps"
-import { FaSquare } from 'react-icons/fa6'
-
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
-  const dateLabel = new Date(label)
-
-  if (active && payload && payload.length) {
-    return (
-      <div className="custom-tooltip border border-foreground p-3 py-2 bg-background">
-        <p className="label">
-          {dateLabel.toLocaleTimeString('en-GB', {
-            year: 'numeric', 
-            month: 'numeric', 
-            day: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit'
-          })}
-        </p>
-        
-        <div className="tooltip-legend">
-          {payload.map((pld) => (
-            // adding key to react fragment so nextjs doesn't throw a tantrum
-            // https://stackoverflow.com/questions/73359286/can-you-add-properties-to-the-empty-element-in-react
-            <React.Fragment key={pld.dataKey}>
-              <FaSquare color={pld.color} />
-              <div>{pld.dataKey}</div>
-              <div>{pld.value}{pld.dataKey==="Mouse Movements" && "m"}</div>
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  return null
+export interface CustomTooltipProps<ValueType extends string | number = number, NameType extends string | number = string> extends TooltipProps<ValueType, NameType> {
+  active?: boolean;
+  payload?: {
+    name?: NameType;
+    value?: ValueType;
+    dataKey?: string;
+    color?: string;
+  }[];
+  label?: string;
 }
 
-const CustomLegend = ({ payload, hiddenSeries, setHiddenSeries }) => {
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (!active || !payload || !payload.length || !label) return null;
+
+  const dateLabel = new Date(label)
+
+  return (
+    <div className="custom-tooltip border border-foreground p-3 py-2 bg-background">
+      <p className="label">
+        {dateLabel.toLocaleTimeString('en-GB', {
+          year: 'numeric', 
+          month: 'numeric', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit'
+        })}
+      </p>
+      
+      <div className="tooltip-legend">
+        {payload.map((pld) => (
+          // adding key to react fragment so nextjs doesn't throw a tantrum
+          // https://stackoverflow.com/questions/73359286/can-you-add-properties-to-the-empty-element-in-react
+          <React.Fragment key={pld.dataKey}>
+            <FaSquare color={pld.color} />
+            <div>{pld.dataKey}</div>
+            <div>{pld.value}{pld.dataKey==="Mouse Movements" && "m"}</div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface CustomLegendProps {
+  payload?: {
+    dataKey: string;
+    color: string;
+  }[];
+  hiddenSeries: string[];
+  setHiddenSeries: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+const CustomLegend = ({ payload, hiddenSeries, setHiddenSeries }: CustomLegendProps) => {
 
   const handleLegendClick = (dataKey: string) => {
     if (hiddenSeries.includes(dataKey)) {
@@ -133,7 +156,7 @@ const CustomLegend = ({ payload, hiddenSeries, setHiddenSeries }) => {
 
   return (
     <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-      {payload.map((pld) => (
+      {payload?.map((pld) => (
         <div 
           key={pld.dataKey} 
           className={`flex flex-nowrap items-center gap-1 hover:cursor-pointer 

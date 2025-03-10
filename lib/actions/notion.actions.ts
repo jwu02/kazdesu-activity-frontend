@@ -1,7 +1,7 @@
 "use server"
 
 import { Client } from "@notionhq/client"
-import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import { PageObjectResponse, MultiSelectPropertyItemObjectResponse, TitlePropertyItemObjectResponse, ParagraphBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 import { getPlainTextFromRichTextArray } from "../utils";
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -24,7 +24,9 @@ export async function getBlogs() {
   });
 
   const blogsPreview = await Promise.all(
-    response.results.map(async (blogPage: any) => {
+    response.results.map(async (blogPage) => {
+      if (!('properties' in blogPage) || !('created_time' in blogPage)) return null;
+      
       // Fetch a preview: first block only
       const blocks = await notion.blocks.children.list({
         block_id: blogPage.id,
@@ -32,28 +34,28 @@ export async function getBlogs() {
       });
   
       const preview = blocks.results[0]
-        ? blocks.results[0][blocks.results[0].type]?.rich_text?.[0]?.plain_text.substring(0, 250) + "..." || ""
+        ? ((blocks.results[0] as ParagraphBlockObjectResponse).paragraph?.rich_text?.[0]?.plain_text || "").substring(0, 250) + "..."
         : "";
   
-      const blogTitlePlainText = getPlainTextFromRichTextArray(blogPage.properties.Name.title)
+      const nameProperty = blogPage.properties.Name as unknown as TitlePropertyItemObjectResponse;
+      const blogTitlePlainText = getPlainTextFromRichTextArray(nameProperty.title as unknown as RichTextItemResponse[])
       
       return {
         id: blogPage.id,
         title: blogTitlePlainText || "Untitled",
         createdAt: blogPage.created_time,
-        tags: blogPage.properties.Tags.multi_select.map((tag: any) => tag.name),
+        tags: (blogPage.properties.Tags as MultiSelectPropertyItemObjectResponse).multi_select.map(tag => tag.name),
         preview: preview,
       };
-    })
+    }).filter((preview): preview is NonNullable<typeof preview> => preview !== null)
   );
 
   return blogsPreview;
 }
 
 export async function getProjects() {
-  "use server"
   const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID_PROJECT!,
+    database_id: process.env.NOTION_DATABASE_ID_PROJECTS!,
     filter: {
       property: "Status",
       status: {
@@ -70,15 +72,19 @@ export async function getProjects() {
 
   // iterate over each project page and fetch its contents
   const projects = await Promise.all(
-    response.results.map(async (projectPage: any) => {
+    response.results.map(async (projectPage) => {
+      if (!('properties' in projectPage) || !('created_time' in projectPage)) return null;
+      
+      const nameProperty = projectPage.properties.Name as unknown as TitlePropertyItemObjectResponse;
+      
       return {
         id: projectPage.id,
-        title: getPlainTextFromRichTextArray(projectPage.properties.Name.title) || "Untitled",
+        title: getPlainTextFromRichTextArray(nameProperty.title as unknown as RichTextItemResponse[]) || "Untitled",
         createdAt: projectPage.created_time,
-        tags: projectPage.properties.Tags.multi_select.map((tag: any) => tag.name),
+        tags: (projectPage.properties.Tags as MultiSelectPropertyItemObjectResponse).multi_select.map(tag => tag.name),
         blocks: (await notion.blocks.children.list({ block_id: projectPage.id })).results,
       }
-    })
+    }).filter((project): project is NonNullable<typeof project> => project !== null)
   )
 
   return projects
@@ -89,14 +95,15 @@ export async function getPageById(id: string) {
   const page = response as PageObjectResponse
   if (!page) return null
 
-  const titlePlainText = getPlainTextFromRichTextArray(page.properties.Name.title)
+  const nameProperty = page.properties.Name as unknown as TitlePropertyItemObjectResponse;
+  const titlePlainText = getPlainTextFromRichTextArray(nameProperty.title as unknown as RichTextItemResponse[])
   const blocks = await notion.blocks.children.list({ block_id: id })
 
   return {
     id: page.id,
     title: titlePlainText || "Untitled",
     createdAt: page.created_time,
-    tags: page.properties.Tags.multi_select.map((tag: any) => tag.name),
+    tags: (page.properties.Tags as MultiSelectPropertyItemObjectResponse).multi_select.map(tag => tag.name),
     blocks: blocks.results,
   }
 }

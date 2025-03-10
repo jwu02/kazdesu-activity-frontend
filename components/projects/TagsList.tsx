@@ -12,7 +12,7 @@ const TagsList = ({ tags }: TagsListProps) => {
   return (
     <div className="flex flex-wrap gap-1">
       {sortedTags.map((tag) => (
-        <Badge key={tag}>{tag}</Badge>
+        <Badge key={tag} className="rounded-none">{tag}</Badge>
       ))}
     </div>
   )

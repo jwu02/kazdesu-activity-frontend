@@ -4,32 +4,30 @@ import Image from 'next/image'
 import { ImageBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { getPlainTextFromRichTextArray } from '@/lib/utils';
 
-interface ImageProps {
+export interface ImageProps {
   block: ImageBlockObjectResponse;
 }
 
 const NotionImage = ({ block }: ImageProps) => {
-  
-  
   if (!block || block.type !== 'image') {
     return null;
   }
 
   const image = block.image;
-  if (!image || !image.type) {
+  if (!image) {
     console.error('Invalid image block:', block);
     return null;
   }
 
   let imageUrl;
-  if (image.type === 'file') {
+  if ('file' in image) {
     if (image.file && image.file.url) {
       imageUrl = image.file.url;
     } else {
       console.error('Missing file URL in image block:', block);
       return null;
     }
-  } else if (image.type === 'external') {
+  } else if ('external' in image) {
     if (image.external && image.external.url) {
       imageUrl = image.external.url;
     } else {
@@ -37,7 +35,7 @@ const NotionImage = ({ block }: ImageProps) => {
       return null;
     }
   } else {
-    console.error('Unknown image type:', image.type);
+    console.error('Unknown image type:', image);
     return null;
   }
 

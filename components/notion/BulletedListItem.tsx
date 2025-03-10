@@ -3,7 +3,7 @@
 import RichText from './RichText'
 import { BulletedListItemBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
-interface BulletedListItemProps {
+export interface BulletedListItemProps {
   block: BulletedListItemBlockObjectResponse
 }
 

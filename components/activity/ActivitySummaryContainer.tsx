@@ -1,12 +1,15 @@
 "use client"
 
-import { ActivitySummaryContainerProps, ActivitySummaryProps } from "@/lib/componentProps"
 import { formatCount, formatMeasurement } from '@/lib/utils'
-import { ActivityTypeKey } from '@/lib/types'
+import { ActivityDataStateType, ActivityTypeKey } from '@/lib/types'
 import { activityTypeMapping } from '@/lib/constants'
 
 import { animate } from 'framer-motion'
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
+
+export interface ActivitySummaryContainerProps {
+  activityData: ActivityDataStateType;
+}
 
 const ActivitySummaryContainer = ({ activityData }: ActivitySummaryContainerProps) => {
   return (
@@ -17,7 +20,7 @@ const ActivitySummaryContainer = ({ activityData }: ActivitySummaryContainerProp
             key={activityTypeKey}
             activityType={activityTypeKey as ActivityTypeKey}
             total={
-              activityData[activityTypeKey].reduce((t, obj) => t + obj.count, 0)
+              activityData[activityTypeKey as ActivityTypeKey].reduce((t: number, obj: { count: number }) => t + obj.count, 0)
             }
           />
         ))
@@ -28,13 +31,15 @@ const ActivitySummaryContainer = ({ activityData }: ActivitySummaryContainerProp
 
 export default ActivitySummaryContainer
 
+export interface ActivitySummaryProps {
+  activityType: ActivityTypeKey;
+  total: number;
+}
+
+
 const ActivitySummary = ({ activityType, total }: ActivitySummaryProps) => {
   const activityLabel = activityTypeMapping[activityType].summaryLabel
   const totalFormatter = activityType==="mouseMovements" ? formatMeasurement : formatCount
-  
-  const [isHovered, setIsHovered] = useState(false)
-  const Icon = activityTypeMapping[activityType].icon
-  const typeColour = activityTypeMapping[activityType].colour
 
   const ref = useRef<HTMLSpanElement>(null)
 
@@ -53,29 +58,19 @@ const ActivitySummary = ({ activityType, total }: ActivitySummaryProps) => {
     })
 
     return () => controls.stop()
-  }, [total])
+  }, [total, totalFormatter])
 
   return (
-    <div className="flex gap-2 p-4 rounded-lg group"
-      style={{
-        color: isHovered ? typeColour : ""
-      }}
-      onMouseEnter={()=>setIsHovered(true)}
-      onMouseLeave={()=>setIsHovered(false)}
-    >
-      <div className="opacity-75 group-hover:opacity-100"><Icon size={24} /></div>
-
-      <div className="flex flex-col flex-nowrap items-end gap-2 ml-auto">
-        <span className="text-nowrap font-black">
-          <span className="text-3xl" ref={ref}>0</span>
-          {activityType==="mouseMovements" && 
-            <span className="text-2xl">m</span>
-          }
-        </span>
-        <span className="text-nowrap text-sm opacity-75 group-hover:opacity-100">
-          {activityLabel}
-        </span>
-      </div>
+    <div className="flex flex-col flex-nowrap items-end ml-auto gap-2 p-4 rounded-lg group">
+      <span className="text-nowrap font-black">
+        <span className="text-3xl" ref={ref}>0</span>
+        {activityType==="mouseMovements" && 
+          <span className="text-2xl">m</span>
+        }
+      </span>
+      <span className="text-nowrap text-sm opacity-75 group-hover:opacity-100">
+        {activityLabel}
+      </span>
     </div>
   )
 }

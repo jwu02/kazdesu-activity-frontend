@@ -1,7 +1,7 @@
 import { fetchKnowledgeGraphData } from '@/lib/actions/knowledge.actions'
-import DisjointForceGraph from '@/components/knowledge-base/DisjointForceGraph'
+import DisjointForceGraph from '@/components/knowledge/DisjointForceGraph'
 
-const KnowledgeGraph = async () => {
+const KnowledgeBaseDashboard = async () => {
   const { nodes, links } = await fetchKnowledgeGraphData()
 
   return (
@@ -14,4 +14,4 @@ const KnowledgeGraph = async () => {
   )
 }
 
-export default KnowledgeGraph
+export default KnowledgeBaseDashboard

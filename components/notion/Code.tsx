@@ -4,7 +4,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { CodeBlockObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
 
-interface CodeProps {
+export interface CodeProps {
   block: CodeBlockObjectResponse;
 }
 

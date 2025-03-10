@@ -3,7 +3,7 @@ import { getPageById } from "@/lib/actions/notion.actions"
 import { blockTypeToComponentMap } from "@/lib/utils"
 import { notFound } from "next/navigation"
 
-export const revalidate = 3600
+// export const revalidate = 3600
 
 // export async function generateStaticParams() {
 //   const ids = await getAllNoteIds();

@@ -2,7 +2,7 @@
 
 import { ToggleBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
-interface ToggleProps {
+export interface ToggleProps {
   block: ToggleBlockObjectResponse
 }
 

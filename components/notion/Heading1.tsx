@@ -3,7 +3,7 @@
 import RichText from './RichText'
 import { Heading1BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
-interface Heading1Props {
+export interface Heading1Props {
   block: Heading1BlockObjectResponse
 }
 

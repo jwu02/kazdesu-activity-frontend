@@ -1,5 +1,10 @@
-import { type ClassValue, clsx } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+
+import * as d3 from 'd3'
+import { MS_IN_DAY } from "@/lib/constants"
+import { PcActivity } from "./types"
+
 import BulletedListItem from "@/components/notion/BulletedListItem"
 import Code from "@/components/notion/Code"
 import Heading1 from "@/components/notion/Heading1"
@@ -7,16 +12,14 @@ import Heading2 from "@/components/notion/Heading2"
 import Image from "@/components/notion/Image"
 import Paragraph from "@/components/notion/Paragraph"
 import Toggle from "@/components/notion/Toggle"
+import { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-import { PcActivity } from "@/lib/types"
-import { MS_IN_DAY } from "@/lib/constants"
 
-import * as d3 from "d3"
-import { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
+// activity chart utils
 
 export const filterActivityData = (x: number, data: PcActivity[]): PcActivity[] => {
   // x should be given in milliseconds
@@ -90,42 +93,8 @@ export const round = (value: number, precision: number) => {
   return Math.round(value * multiplier) / multiplier
 }
 
-export const getFilenameFromPath = (path: string) => {
-  // Split the path by '/' and get the last part
-  let filename = path.split('/').pop()
 
-  if (filename === undefined) {
-    filename = path
-  }
-    
-  // Remove the file extension
-  filename = filename.split('.').slice(0, -1).join('.')
-  
-  return filename
-}
-
-export const getDirectoryFromPath = (path: string) => {
-  let directory = path.split('/').slice(0, -1).join('/')
-
-  return directory
-}
-
-export const extractMarkdownLinks = (markdown: string) => {
-  // Regular expression to match substrings inside [[ ... ]]
-  const regex = /\[\[(.*?)\]\]/g
-
-  // Match all substrings and return them as an array
-  const matches = []
-  let match
-
-  while ((match = regex.exec(markdown)) !== null) {
-    // match[1] contains the text inside the brackets
-    matches.push(match[1])
-  }
-
-  return matches
-}
-
+// notion utils
 
 export function getPlainTextFromRichTextArray(richTextArray: RichTextItemResponse[]) {
   return richTextArray.map((text) => text.plain_text).join("")

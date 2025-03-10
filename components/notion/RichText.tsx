@@ -1,13 +1,14 @@
 "use client"
 
+import React from "react"
 import { RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 
-interface RichTextProps {
+export interface RichTextProps {
   richTextArray: RichTextItemResponse[]
 }
 
 const RichText = ({ richTextArray }: RichTextProps) => {
-  return richTextArray.map((segment) => {
+  return richTextArray.map((segment, index) => {
     // const segmentStyles = [
     //   'text-inherit',
     //   segment.annotations.bold && 'font-black',
@@ -19,7 +20,7 @@ const RichText = ({ richTextArray }: RichTextProps) => {
     // return (<span key={index} className={segmentStyles.join(' ')}>
     //   {segment.plain_text}
     // </span>)
-    return <>{segment.plain_text}</>
+    return <React.Fragment key={index}>{segment.plain_text}</React.Fragment>
   })
 }
 

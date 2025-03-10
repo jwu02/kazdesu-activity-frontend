@@ -2,7 +2,7 @@
 
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 
-interface UnsupportedProps {
+export interface UnsupportedProps {
   block: BlockObjectResponse
 }
 

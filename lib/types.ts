@@ -1,4 +1,24 @@
-import { BlockObjectResponse, PartialBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { SimulationNodeDatum } from 'd3'
+
+export interface Node extends SimulationNodeDatum {
+  id: string
+  group: string
+  radius: number
+  isLeaf: boolean
+  connectedNodes: string[]
+  // Required for D3 force simulation
+  x?: number
+  y?: number
+  fx?: number | null
+  fy?: number | null
+}
+
+export interface Link {
+  source: Node | string
+  target: Node | string
+  value: number
+}
+
 
 export interface KeyPress {
   id: number;
@@ -26,8 +46,12 @@ export interface MouseMovement {
 
 export type PcActivity = KeyPress | LeftClick | RightClick | MouseMovement
 
+export type ActivityDataKey = 'Key Presses' | 'Left Clicks' | 'Right Clicks' | 'Mouse Movements'
+
 export interface IntervalMapping {
-  [timestamp: number]: any;
+  [timestamp: number]: {
+    [key in ActivityDataKey]: number;
+  };
 }
 
 export type ActivityDataStateType = {
@@ -38,5 +62,3 @@ export type ActivityDataStateType = {
 }
 
 export type ActivityTypeKey = 'keyPresses' | 'leftClicks' | 'rightClicks' | 'mouseMovements'
-
-export type BlockResponse = any//PartialBlockObjectResponse | BlockObjectResponse

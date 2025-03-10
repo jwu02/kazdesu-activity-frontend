@@ -35,7 +35,7 @@ const ActivityDashboard = () => {
     const intervalId = setInterval(fetchAllActivityData, POLLING_FREQUENCY)
 
     return () => clearInterval(intervalId) // Clean up
-  }, [])
+  }, [POLLING_FREQUENCY])
 
   return (
     <div className="flex flex-col gap-4">
