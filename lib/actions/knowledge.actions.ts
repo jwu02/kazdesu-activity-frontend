@@ -40,6 +40,11 @@ const processKnowledgeGraphData = async (nodes: Node[], links: Link[]) => {
   )
 
   nodes.forEach(node => {
+    // Assign default values to each node
+    node.isLeaf = false
+    node.radius = 0
+    node.connectedNodes = []
+
     const outBoundLinks = validLinks.filter(link => link.source === node.id)
     const inBoundLinks = validLinks.filter(link => link.target === node.id)
 

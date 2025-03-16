@@ -14,10 +14,10 @@ export const socials = [
     url: 'https://discord.com/channels/@me',
   },
   {
-    name: 'X @kazdesu21',
+    name: 'X @jwu2121',
     className: '',
     icon: FaXTwitter,
-    url: 'https://x.com/kazdesu21',
+    url: 'https://x.com/jwu2121',
   },
   {
     name: 'GitHub @jwu02',

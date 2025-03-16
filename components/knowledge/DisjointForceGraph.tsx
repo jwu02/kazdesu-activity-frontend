@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import * as d3 from 'd3'
 import { Link, Node } from '@/lib/types'
 
@@ -12,65 +12,55 @@ interface DisjointForceGraphProps {
 // https://observablehq.com/@d3/disjoint-force-directed-graph/2?intent=fork
 const DisjointForceGraph = ({ nodes, links }: DisjointForceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null)
+  const gRef = useRef<SVGGElement | null>(null)
+  const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null)
 
-  useEffect(() => {
-    const SCALE = 1.5
+  // Memoize constants and configurations
+  const config = useMemo(() => ({
+    SCALE: 1.5,
+    width: 928,
+    height: 500,
+    nodeRadius: 22,
+    linkDistance: 120,
+    chargeStrength: -300,
+    zoomExtent: [0.2, 4] as [number, number]
+  }), [])
 
-    const svgElement = svgRef.current
-    if (!svgElement) return
+  // Memoize the simulation configuration
+  const createSimulation = useCallback(() => {
+    return d3.forceSimulation<Node>(nodes)
+      .force("link", d3.forceLink<Node, Link>(links)
+        .id(d => d.id)
+        .distance(d => ((d.source as Node).isLeaf || (d.target as Node).isLeaf) ? config.linkDistance * 0.7 : config.linkDistance))
+      .force("charge", d3.forceManyBody<Node>()
+        .strength(d => d.isLeaf ? config.chargeStrength * 0.5 : config.chargeStrength)
+        .theta(0.9)
+        .distanceMax(250))
+      .force("collide", d3.forceCollide<Node>().radius(d => d.radius))
+      .force("x", d3.forceX<Node>().strength(0.03))
+      .force("y", d3.forceY<Node>().strength(0.03))
+      .alphaDecay(0.015)
+      .velocityDecay(0.35)
+  }, [nodes, links, config])
 
-    const width = 928
-    const height = 500
+  // Memoize zoom behavior
+  const zoom = useMemo(() => {
+    return d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent(config.zoomExtent)
+      .on("zoom", (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        if (gRef.current) {
+          d3.select(gRef.current).attr("transform", event.transform.toString())
+        }
+      })
+  }, [config.zoomExtent])
 
-    const svg = d3.select<SVGSVGElement, unknown>(svgElement)
-      .attr("viewBox", [-width*SCALE, -height*SCALE, width*2*SCALE, height*2*SCALE])
-      .classed("w-full h-auto active:cursor-grabbing", true)
-
-    const g = svg.append("g") // Create a group to hold the graph elements
-
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.5, 3]) // Set zoom scale limits
-      .on("zoom", zoomed)
-
-    svg.call(zoom)
-
-    // Create a simulation with these specific node types
-    const simulation = d3.forceSimulation<Node>(nodes)
-      .force("link", d3.forceLink<Node, Link>(links).id(d => d.id).distance(120))
-      .force("charge", d3.forceManyBody<Node>().strength(-120))
-      .force("collide", d3.forceCollide<Node>().radius(20))
-      .force("x", d3.forceX<Node>())
-      .force("y", d3.forceY<Node>())
-
-    const link = g
-      .selectAll<SVGLineElement, Link>("line")
-      .data(links)
-      .enter().append("line")
-      .attr("stroke-width", 1)
-      .classed("stroke-node-secondary", true)
-
-    const node = g
-      .selectAll<SVGCircleElement, Node>("circle")
-      .data(nodes)
-      .enter().append("circle")
-      .attr("r", d => d.radius)
-      .classed("hover:cursor-pointer", true)
-      .classed("fill-node-primary", d => !d.isLeaf)
-      .classed("fill-node-secondary", d => d.isLeaf)
-    
-    const nodeText = g
-      .attr("class", "node-label")
-      .selectAll<SVGTextElement, Node>(".node-label")
-      .data(nodes)
-      .enter().append("text")
-      .attr("visibility", "hidden")
-      .style("fill", "var(--node-primary)")
-      .classed("text-3xl", true)
-      .text(d => d.id)
-
-    const drag = d3.drag<SVGCircleElement, Node>()
+  // Optimize drag behavior with useCallback
+  const drag = useCallback(() => {
+    return d3.drag<SVGCircleElement, Node>()
       .on("start", (event: d3.D3DragEvent<SVGCircleElement, Node, Node>) => {
-        if (!event.active) simulation.alphaTarget(1).restart()
+        if (!event.active && simulationRef.current) {
+          simulationRef.current.alphaTarget(0.3).restart()
+        }
         event.subject.fx = event.subject.x
         event.subject.fy = event.subject.y
       })
@@ -79,96 +69,145 @@ const DisjointForceGraph = ({ nodes, links }: DisjointForceGraphProps) => {
         event.subject.fy = event.y
       })
       .on("end", (event: d3.D3DragEvent<SVGCircleElement, Node, Node>) => {
-        if (!event.active) simulation.alphaTarget(0)
+        if (!event.active && simulationRef.current) {
+          simulationRef.current.alphaTarget(0)
+        }
         event.subject.fx = null
         event.subject.fy = null
       })
+  }, [])
 
-    node.call(drag)
-      .on("mouseover", mouseover)
-      .on("mouseout", mouseout)
-      
-    simulation.on("tick", () => {
-      link
-        .attr("x1", d => (d.source as Node).x ?? 0)
-        .attr("y1", d => (d.source as Node).y ?? 0)
-        .attr("x2", d => (d.target as Node).x ?? 0)
-        .attr("y2", d => (d.target as Node).y ?? 0)
+  // Optimize mouse interactions with useCallback
+  const handleMouseover = useCallback((event: MouseEvent, d: Node) => {
+    const svg = d3.select(svgRef.current)
+    
+    // Use more efficient selections
+    const target = d3.select(event.target as Element)
+    target.attr("r", d.radius + 2)
 
-      node
-        .attr("cx", d => d.x ?? 0)
-        .attr("cy", d => d.y ?? 0)
-      
-      nodeText
-        .attr("x", d => d.x ?? 0)
-        .attr("y", d => d.y ?? 0)
-    })
+    const connectedNodeIds = new Set(d.connectedNodes)
+    connectedNodeIds.add(d.id)
 
-    function zoomed(event: d3.D3ZoomEvent<SVGSVGElement, unknown>) {
-      g.attr("transform", event.transform.toString())
-    }
+    // Batch DOM operations
+    svg.selectAll<SVGLineElement, Link>("line")
+      .classed("muted-link", l => !((l.source as Node).id === d.id || (l.target as Node).id === d.id))
+      .classed("connected-link", l => ((l.source as Node).id === d.id || (l.target as Node).id === d.id))
 
-    function mouseover(event: MouseEvent, d: Node) {
-      // Make increase circle radius slightly
-      d3.select(event.target as Element)
-        .attr("r", d.radius + 2)
+    svg.selectAll<SVGCircleElement, Node>("circle")
+      .classed("muted-node", n => !connectedNodeIds.has(n.id))
+      .classed("connected-node", n => connectedNodeIds.has(n.id))
 
-      const connectedNodeIds = new Set(d.connectedNodes)
-      connectedNodeIds.add(d.id)
-
-      link
-        .classed("muted-link", l => !((l.source as Node).id === d.id || (l.target as Node).id === d.id))
-      node
-        .classed("muted-node", d => !connectedNodeIds.has(d.id))
-        .raise()
-
-      // Highlight connected edges and nodes
-      svg.selectAll<SVGLineElement, Link>("line")
-        .filter(l => ((l.source as Node).id === d.id || (l.target as Node).id === d.id))
-        .classed("connected-link", true)
-        .raise()
-      svg.selectAll<SVGCircleElement, Node>("circle")
-        .filter(d => connectedNodeIds.has(d.id))
-        .classed("connected-node", true)
-        .raise()
-
-      // Show the text of the hovered node
-      nodeText
-        .attr("visibility", node => node.id === d.id ? "visible" : "hidden")
-        .attr("colour", "white")
-        .raise()
-
-      nodeText.each(function(d) {
+    // Optimize text visibility updates
+    svg.selectAll<SVGTextElement, Node>("text")
+      .attr("visibility", n => n.id === d.id ? "visible" : "hidden")
+      .filter(n => n.id === d.id)
+      .each(function() {
         const bbox = this.getBBox()
-        const textWidth = bbox.width
         d3.select(this)
-          .attr("dx", -textWidth / 2)
+          .attr("dx", -bbox.width / 2)
           .attr("dy", -15-d.radius)
+      })
+  }, [])
+
+  const handleMouseout = useCallback((event: MouseEvent) => {
+    const svg = d3.select(svgRef.current)
+    const target = event.target as Element
+    const data = d3.select<Element, Node>(target).datum()
+    
+    // Batch DOM operations
+    d3.select(target).attr("r", data.radius)
+    
+    svg.selectAll("line")
+      .classed("connected-link muted-link", false)
+    
+    svg.selectAll("circle")
+      .classed("connected-node muted-node", false)
+    
+    svg.selectAll("text")
+      .attr("visibility", "hidden")
+  }, [])
+
+  useEffect(() => {
+    if (!svgRef.current) return
+
+    const svg = d3.select(svgRef.current)
+      .attr("viewBox", [
+        -config.width * config.SCALE,
+        -config.height * config.SCALE,
+        config.width * 2 * config.SCALE,
+        config.height * 2 * config.SCALE
+      ].join(","))
+      .classed("w-full h-auto active:cursor-grabbing", true)
+
+    // Clear previous content
+    svg.selectAll("*").remove()
+
+    const g = svg.append("g")
+    gRef.current = g.node()
+
+    // Apply zoom behavior
+    svg.call(zoom)
+
+    // Create and store simulation
+    const simulation = createSimulation()
+    simulationRef.current = simulation
+
+    // Create elements with optimized attributes
+    const link = g.selectAll<SVGLineElement, Link>("line")
+      .data(links)
+      .join("line")
+      .attr("stroke-width", 1)
+      .classed("stroke-node-secondary", true)
+
+    const node = g.selectAll<SVGCircleElement, Node>("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("r", d => d.radius)
+      .classed("hover:cursor-pointer fill-node-primary", d => !d.isLeaf)
+      .classed("fill-node-secondary", d => d.isLeaf)
+
+    const nodeText = g.selectAll<SVGTextElement, Node>("text")
+      .data(nodes)
+      .join("text")
+      .attr("visibility", "hidden")
+      .style("fill", "var(--node-primary)")
+      .classed("text-3xl", true)
+      .text(d => d.id)
+
+    // Apply interactions
+    node.call(drag())
+      .on("mouseover", handleMouseover)
+      .on("mouseout", handleMouseout)
+
+    // Optimize tick function
+    let rafId: number
+    const ticked = () => {
+      rafId = requestAnimationFrame(() => {
+        link
+          .attr("x1", d => (d.source as Node).x ?? 0)
+          .attr("y1", d => (d.source as Node).y ?? 0)
+          .attr("x2", d => (d.target as Node).x ?? 0)
+          .attr("y2", d => (d.target as Node).y ?? 0)
+
+        node
+          .attr("cx", d => d.x ?? 0)
+          .attr("cy", d => d.y ?? 0)
+
+        nodeText
+          .attr("x", d => d.x ?? 0)
+          .attr("y", d => d.y ?? 0)
       })
     }
 
-    function mouseout(event: MouseEvent) {
-      const target = event.target as Element
-      const data = d3.select<Element, Node>(target).datum()
-      d3.select(target).attr("r", data.radius)
+    simulation.on("tick", ticked)
 
-      link
-        .classed("connected-link", false)
-        .classed("muted-link", false)
-      node
-        .classed("connected-node", false)
-        .classed("muted-node", false)
-        .raise()
-      
-      nodeText.attr("visibility", "hidden")
-    }
-
+    // Cleanup
     return () => {
-      simulation.stop()
-      svg.on(".zoom", null) // Clean up the zoom listener on unmount
-      svg.selectAll("*").remove()
+      if (rafId) cancelAnimationFrame(rafId)
+      if (simulationRef.current) simulationRef.current.stop()
+      svg.on(".zoom", null)
     }
-  }, [nodes, links])
+  }, [nodes, links, config, zoom, handleMouseover, handleMouseout, createSimulation, drag])
 
   return (
     <div className="relative">
