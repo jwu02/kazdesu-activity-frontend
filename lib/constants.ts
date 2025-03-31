@@ -1,4 +1,4 @@
-import { FaDiscord, FaGithub, FaTiktok, FaXTwitter } from "react-icons/fa6";
+import { FaDiscord, FaGithub, FaXTwitter } from "react-icons/fa6";
 
 export const socials = [
   // {
@@ -31,12 +31,12 @@ export const socials = [
   //   icon: FaYoutube,
   //   url: 'https://www.youtube.com/@jwoo2121',
   // },
-  {
-    name: 'TikTok @jwoo21',
-    className: '',
-    icon: FaTiktok,
-    url: 'https://www.tiktok.com/@jwoo21',
-  }
+  // {
+  //   name: 'TikTok @jwoo21',
+  //   className: '',
+  //   icon: FaTiktok,
+  //   url: 'https://www.tiktok.com/@jwoo21',
+  // }
 ];
 
 export const MS_IN_SECOND = 1000
