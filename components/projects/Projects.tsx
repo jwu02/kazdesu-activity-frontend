@@ -1,6 +1,6 @@
 "use client"
 
-import { fmContainerCommon, fmItemCommon } from '@/lib/constants'
+import { fmContainerCommon, fmItemCommon } from '@/lib/constants/styles'
 import TagsList from './TagsList'
 import Unsupported from '@/components/notion/Unsupported'
 import { blockTypeToComponentMap } from '@/lib/utils'

@@ -5,7 +5,7 @@ import TagsList from '@/components/projects/TagsList'
 import { IoIosArrowForward } from 'react-icons/io'
 import Image from 'next/image'
 import { motion } from "framer-motion"
-import { fmContainerCommon, fmItemCommon } from '@/lib/constants'
+import { fmContainerCommon, fmItemCommon } from '@/lib/constants/styles'
 
 interface Blog {
   id: string;

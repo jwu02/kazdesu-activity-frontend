@@ -1,6 +1,6 @@
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from "recharts"
 import { getTimeTicks, timeTickDateFormatter, timeTickHourFormatter } from "@/lib/utils"
-import { activityTypeMapping, MS_IN_DAY } from "@/lib/constants"
+import { activityTypeMapping, MS_IN_DAY } from "@/lib/constants/activity"
 import { FaSquare } from 'react-icons/fa6'
 import React, { useState } from "react"
 

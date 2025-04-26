@@ -5,7 +5,9 @@ import Navbar from './Navbar';
 import Socials from './Socials';
 
 const Header = () => {
-  const intro = "hello i am tony";
+  const name = "jwoo"
+  const intro = "unemployed cs grad disguised as an entreprenuer"
+  const quote = "\"Chase your dreams. Or die trying.\" - Someone"
   const pfpImgSrc = "/pfp.jpg";
 
   return (
@@ -19,8 +21,10 @@ const Header = () => {
       />
 
       <div className="flex flex-col justify-between">
-        <Socials />
+        <div className="text-lg">@{name}</div>
         <div className="text-lg">{intro}</div>
+        <div className="text-lg">{quote}</div>
+        <Socials />
         <Navbar />
       </div>
     </div>

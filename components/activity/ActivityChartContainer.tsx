@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import TimeframeToggleGroup from '@/components/activity/TimeframeToggleGroup'
-import { activityTypeMapping, MS_IN_DAY } from '@/lib/constants'
+import { activityTypeMapping, MS_IN_DAY } from '@/lib/constants/activity'
 import { filterActivityData } from '@/lib/utils'
 import { ActivityDataStateType, ActivityTypeKey, IntervalMapping, ActivityDataKey } from '@/lib/types'
 import ActivityChart from '@/components/activity/ActivityChart'

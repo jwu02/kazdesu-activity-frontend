@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { filterWindowMapping, MS_IN_DAY } from '@/lib/constants'
+import { filterWindowMapping, MS_IN_DAY } from '@/lib/constants/activity'
 
 interface TimeframeToggleGroupProps {
   setFilterWindow: (filterWindow: number) => void;

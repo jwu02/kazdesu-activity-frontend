@@ -2,7 +2,7 @@
 
 import { formatCount, formatMeasurement } from '@/lib/utils'
 import { ActivityDataStateType, ActivityTypeKey } from '@/lib/types'
-import { activityTypeMapping } from '@/lib/constants'
+import { activityTypeMapping } from '@/lib/constants/activity'
 
 import { animate } from 'framer-motion'
 import { useEffect, useRef } from "react"

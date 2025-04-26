@@ -46,6 +46,8 @@
 
   --color-node-primary: var(--node-primary);
   --color-node-secondary: var(--node-secondary);
+
+  --color-theme-1: var(--theme-1);
 }
 
 :root {
@@ -85,6 +87,7 @@
   
   --node-primary: oklch(0.446 0.0263 256.8);
   --node-secondary: oklch(0.872 0.0093 258.34);
+  --theme-1: oklch(0 0 0);
 }
 
 .dark {
@@ -123,17 +126,18 @@
 
   --node-primary: oklch(0.872 0.0093 258.34);
   --node-secondary: oklch(0.446 0.0263 256.8);
+  --theme-1: oklch(0 0 0);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50 text-[14.5px] leading-tight;
+    @apply border-border outline-ring/50 text-[14px] leading-tight;
   }
   body {
     @apply bg-background text-foreground;
   }
 
-  h1, h2 {
+  /* h1, h2 {
     @apply w-fit px-2 py-1 font-bold mb-1;
   }
 
@@ -143,7 +147,7 @@
 
   h2 {
     @apply border-b-4 border-r-4 border-b-foreground border-r-foreground;
-  }
+  } */
 }
 
 @layer utilities {
@@ -183,4 +187,20 @@
 
 .muted-link {
   @apply stroke-muted;
+}
+
+/* Hide everything by default when printing */
+@media print {
+  * {
+    visibility: hidden;
+  }
+  
+  /* Show only the resume class */
+  .resume, .resume * {
+    visibility: visible;
+  }
+  
+  .resume {
+    @apply shadow-none m-0;
+  }
 }

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import ActivitySummaryContainer from "@/components/activity/ActivitySummaryContainer"
 import { ActivityDataStateType } from "@/lib/types"
 import { getAllActivityData } from "@/lib/actions/activity.actions"
-import { MS_IN_MINUTE } from "@/lib/constants"
+import { MS_IN_MINUTE } from "@/lib/constants/activity"
 import ActivityChartContainer from "@/components/activity/ActivityChartContainer"
 
 const ActivityDashboard = () => {

@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 import * as d3 from 'd3'
-import { MS_IN_DAY } from "@/lib/constants"
+import { MS_IN_DAY } from "@/lib/constants/activity"
 import { PcActivity } from "./types"
 
 import BulletedListItem from "@/components/notion/BulletedListItem"

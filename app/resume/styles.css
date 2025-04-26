@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* Hide everything by default when printing */
+@media print {
+  * {
+    visibility: hidden;
+  }
+  
+  /* Show only the resume class */
+  .resume, .resume * {
+    visibility: visible;
+  }
+  
+  .resume {
+    @apply shadow-none m-0;
+  }
+}
